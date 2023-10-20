@@ -85,7 +85,7 @@ net.recieveFrom = function(computerID, title, func)
 		success = true
 		os.cancelTimer(timerID)
 		if func then
-			func(message.data)
+			func(message.data, senderID)
 		end
 		rednet.send(senderID, { title .. "!!ACK" })
 	end
@@ -105,7 +105,7 @@ end
 
 net.recieve = function(title, func)
 	assertInit()
-	local timerID, success, data
+	local timerID, success
 
 	local function recieveAck()
 		local senderID, message
@@ -117,7 +117,7 @@ net.recieve = function(title, func)
 		success = true
 		os.cancelTimer(timerID)
 		if func then
-			func(message.data)
+			func(message.data, senderID)
 		end
 		rednet.send(senderID, { title .. "!!ACK" })
 	end
@@ -143,7 +143,17 @@ end
 net.listenForRequestFrom = function(computerID, title, func)
 	local data, sendData
 	net.recieveFrom(computerID, title, function(_data) data = _data end)
-	sendData = func(data)
+	sendData = func(data, computerID)
+	net.sendTo(computerID, title .. "!!DATA", sendData)
+end
+
+net.listenForRequest = function(title, func)
+	local data, sendData, computerID
+	net.recieve(title, function(_data, otherID)
+		data = _data
+		computerID = otherID
+	end)
+	sendData = func(data, computerID)
 	net.sendTo(computerID, title .. "!!DATA", sendData)
 end
 
