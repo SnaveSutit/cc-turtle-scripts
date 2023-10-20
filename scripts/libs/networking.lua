@@ -49,7 +49,7 @@ net.sendTo = function(computerID, title, data)
 			local senderID, message
 			repeat
 				senderID, message = rednet.receive(_protocol)
-				print("Recieved message: " .. message.title .. " from " .. senderID)
+				print("Recieved ack: " .. message.title .. " from " .. senderID)
 			until senderID == computerID
 				and type(message) == "table"
 				and message.title == (title .. "!!ACK")
@@ -95,6 +95,7 @@ net.receiveFrom = function(computerID, title, func)
 		if func then
 			func(message.data, senderID)
 		end
+		print("Sending ack: " .. title .. " to " .. senderID)
 		rednet.send(senderID, { title .. "!!ACK" })
 	end
 
