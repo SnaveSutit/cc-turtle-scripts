@@ -40,14 +40,14 @@ net.sendTo = function(computerID, title, data)
 	assertInit()
 	local timerID, success
 
-	local function sendRecieve()
+	local function sendreceive()
 		local timerID
 		local function trySend()
 			rednet.send(computerID, { title, data })
 
 			local senderID, message
 			repeat
-				senderID, message = rednet.recieve(_protocol)
+				senderID, message = rednet.receive(_protocol)
 			until senderID == computerID
 				and type(message) == "table"
 				and message.title == (title .. "!!ACK")
@@ -68,7 +68,7 @@ net.sendTo = function(computerID, title, data)
 	end
 
 	timerID = os.startTimer(_timeout)
-	parallel.waitForAny(sendRecieve, timeoutTimer)
+	parallel.waitForAny(sendreceive, timeoutTimer)
 	if success then
 		os.cancelTimer(timerID)
 		return true
@@ -76,14 +76,14 @@ net.sendTo = function(computerID, title, data)
 	return false
 end
 
-net.recieveFrom = function(computerID, title, func)
+net.receiveFrom = function(computerID, title, func)
 	assertInit()
 	local timerID, success, data
 
-	local function recieveAck()
+	local function receiveAck()
 		local senderID, message
 		repeat
-			senderID, message = rednet.recieve(_protocol)
+			senderID, message = rednet.receive(_protocol)
 		until senderID == computerID
 			and type(message) == "table"
 			and message.title == title
@@ -100,7 +100,7 @@ net.recieveFrom = function(computerID, title, func)
 	end
 
 	timerID = os.startTimer(_timeout)
-	parallel.waitForAny(recieveAck, timeoutTimer)
+	parallel.waitForAny(receiveAck, timeoutTimer)
 	if success then
 		os.cancelTimer(timerID)
 		return true
@@ -108,14 +108,14 @@ net.recieveFrom = function(computerID, title, func)
 	return false
 end
 
-net.recieve = function(title, func)
+net.receive = function(title, func)
 	assertInit()
 	local timerID, success
 
-	local function recieveAck()
+	local function receiveAck()
 		local senderID, message
 		repeat
-			senderID, message = rednet.recieve(_protocol)
+			senderID, message = rednet.receive(_protocol)
 		until
 			type(message) == "table"
 			and message.title == title
@@ -132,7 +132,7 @@ net.recieve = function(title, func)
 	end
 
 	timerID = os.startTimer(_timeout)
-	parallel.waitForAny(recieveAck, timeoutTimer)
+	parallel.waitForAny(receiveAck, timeoutTimer)
 	if success then
 		os.cancelTimer(timerID)
 		return true
@@ -146,12 +146,12 @@ net.requestFrom = function(computerID, title, data, func)
 	if not success then
 		return false
 	end
-	return net.recieveFrom(computerID, title .. "!!DATA", func)
+	return net.receiveFrom(computerID, title .. "!!DATA", func)
 end
 
 net.listenForRequestFrom = function(computerID, title, func)
 	local data, sendData, success
-	success = net.recieveFrom(computerID, title, function(_data) data = _data end)
+	success = net.receiveFrom(computerID, title, function(_data) data = _data end)
 	if not success then
 		return false
 	end
@@ -161,7 +161,7 @@ end
 
 net.listenForRequest = function(title, func)
 	local data, sendData, computerID, success
-	success = net.recieve(title, function(_data, otherID)
+	success = net.receive(title, function(_data, otherID)
 		data = _data
 		computerID = otherID
 	end)
