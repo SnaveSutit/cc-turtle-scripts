@@ -141,25 +141,35 @@ net.recieve = function(title, func)
 end
 
 net.requestFrom = function(computerID, title, data, func)
-	net.sendTo(computerID, title, data)
+	local success
+	success = net.sendTo(computerID, title, data)
+	if not success then
+		return false
+	end
 	return net.recieveFrom(computerID, title .. "!!DATA", func)
 end
 
 net.listenForRequestFrom = function(computerID, title, func)
-	local data, sendData
-	net.recieveFrom(computerID, title, function(_data) data = _data end)
+	local data, sendData, success
+	success = net.recieveFrom(computerID, title, function(_data) data = _data end)
+	if not success then
+		return false
+	end
 	sendData = func(data, computerID)
-	net.sendTo(computerID, title .. "!!DATA", sendData)
+	return net.sendTo(computerID, title .. "!!DATA", sendData)
 end
 
 net.listenForRequest = function(title, func)
-	local data, sendData, computerID
-	net.recieve(title, function(_data, otherID)
+	local data, sendData, computerID, success
+	success = net.recieve(title, function(_data, otherID)
 		data = _data
 		computerID = otherID
 	end)
+	if not success then
+		return false
+	end
 	sendData = func(data, computerID)
-	net.sendTo(computerID, title .. "!!DATA", sendData)
+	return net.sendTo(computerID, title .. "!!DATA", sendData)
 end
 
 return net
