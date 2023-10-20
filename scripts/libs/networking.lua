@@ -17,6 +17,7 @@ local function awaitTimer(timerID)
 end
 
 net.init = function(modem, protocal)
+	rednet.close()
 	rednet.open(peripheral.getName(modem))
 	_protocol = protocal
 	_initialized = true
@@ -43,16 +44,14 @@ net.sendTo = function(computerID, title, data)
 	local function sendreceive()
 		local retryTimerID
 		local function trySend()
-			rednet.send(computerID, { title, data })
-			print("Sent message: " .. title .. " to " .. computerID)
+			rednet.send(computerID, { title, data }, _protocol)
 
 			local senderID, message
 			repeat
 				senderID, message = rednet.receive(_protocol)
-				print("Recieved ack: " .. message.title .. " from " .. senderID)
 			until senderID == computerID
 				and type(message) == "table"
-				and message.title == (title .. "!!ACK")
+				and message[1] == (title .. "!!ACK")
 			success = true
 			os.cancelTimer(retryTimerID)
 		end
@@ -86,17 +85,15 @@ net.receiveFrom = function(computerID, title, func)
 		local senderID, message
 		repeat
 			senderID, message = rednet.receive(_protocol)
-			-- print("Recieved message: " .. message.title .. " from " .. senderID)
 		until senderID == computerID
 			and type(message) == "table"
-			and message.title == title
+			and message[1] == title
 		success = true
 		os.cancelTimer(timerID)
 		if func then
-			func(message.data, senderID)
+			func(message[2], senderID)
 		end
-		-- print("Sending ack: " .. title .. " to " .. senderID)
-		rednet.send(senderID, { title .. "!!ACK" })
+		rednet.send(senderID, { title .. "!!ACK" }, _protocol)
 	end
 
 	local function timeoutTimer()
@@ -120,17 +117,15 @@ net.receive = function(title, func)
 		local senderID, message
 		repeat
 			senderID, message = rednet.receive(_protocol)
-			print("Recieved message: " .. message.title .. " from " .. senderID)
 		until
 			type(message) == "table"
-			and message.title == title
+			and message[1] == title
 		success = true
 		os.cancelTimer(timerID)
 		if func then
-			func(message.data, senderID)
+			func(message[2], senderID)
 		end
-		print("Sending ack: " .. title .. " to " .. senderID)
-		rednet.send(senderID, { title .. "!!ACK" })
+		rednet.send(senderID, { title .. "!!ACK" }, _protocol)
 	end
 
 	local function timeoutTimer()
@@ -138,7 +133,6 @@ net.receive = function(title, func)
 	end
 
 	timerID = os.startTimer(_timeout)
-	print("Waiting for message: " .. title)
 	parallel.waitForAny(receiveAck, timeoutTimer)
 	if success then
 		os.cancelTimer(timerID)
@@ -153,8 +147,6 @@ net.requestFrom = function(computerID, title, data, func)
 	if not success then
 		return false
 	end
-	print("Sent request: " .. title .. " to " .. computerID)
-	print("Awaiting response...")
 	return net.receiveFrom(computerID, title .. "!!DATA", func)
 end
 

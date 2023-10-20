@@ -14,8 +14,7 @@ local protocol = "snavesutit:flight_platform_controller"
 local hostname = "snavesutit:handheld_flight_platform_controller"
 local platformID
 local net = requireExternal(
-	"http://localhost:3000/networking.lua"
--- "https://raw.githubusercontent.com/SnaveSutit/cc-turtle-scripts/main/scripts/libs/networking.lua"
+	"https://raw.githubusercontent.com/SnaveSutit/cc-turtle-scripts/main/scripts/libs/networking.lua"
 )
 
 local function main()

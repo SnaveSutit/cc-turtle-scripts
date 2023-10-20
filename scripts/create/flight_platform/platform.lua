@@ -13,8 +13,7 @@ local modem = peripheral.find("modem")
 local controllerID
 local protocol = "snavesutit:flight_platform_controller"
 local net = requireExternal(
-	"http://localhost:3000/networking.lua"
--- "https://raw.githubusercontent.com/SnaveSutit/cc-turtle-scripts/main/scripts/libs/networking.lua"
+	"https://raw.githubusercontent.com/SnaveSutit/cc-turtle-scripts/main/scripts/libs/networking.lua"
 )
 
 local state = {
