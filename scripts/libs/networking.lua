@@ -116,6 +116,7 @@ net.receive = function(title, func)
 		local senderID, message
 		repeat
 			senderID, message = rednet.receive(_protocol)
+			print("Recieved message: " .. message.title .. " from " .. senderID)
 		until
 			type(message) == "table"
 			and message.title == title
