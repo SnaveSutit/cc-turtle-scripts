@@ -44,10 +44,12 @@ net.sendTo = function(computerID, title, data)
 		local timerID
 		local function trySend()
 			rednet.send(computerID, { title, data })
+			print("Sent message: " .. title .. " to " .. computerID)
 
 			local senderID, message
 			repeat
 				senderID, message = rednet.receive(_protocol)
+				print("Recieved message: " .. message.title .. " from " .. senderID)
 			until senderID == computerID
 				and type(message) == "table"
 				and message.title == (title .. "!!ACK")
