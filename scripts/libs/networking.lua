@@ -135,7 +135,9 @@ net.receive = function(title, func)
 	end
 
 	timerID = os.startTimer(_timeout)
+	print("Waiting for message: " .. title)
 	parallel.waitForAny(receiveAck, timeoutTimer)
+	print("Recieved message: " .. title)
 	if success then
 		os.cancelTimer(timerID)
 		return true
