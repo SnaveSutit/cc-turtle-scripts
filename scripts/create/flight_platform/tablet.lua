@@ -1,39 +1,44 @@
 -- wget http://localhost:3000/tablet.lua controller.lua
+
+local function requireExternal(url)
+	local filename = url:match("[^/]+$")
+	if not fs.exists(filename) then
+		print("Downloading " .. url .. " to " .. filename .. "...")
+		shell.run("wget", url, filename)
+	end
+	return require(filename)
+end
+
+local modem = peripheral.find("modem")
 local protocal = "snavesutit:flight_platform_controller"
+local hostname = "snavesutit:handheld_flight_platform_controller"
 local platformID
-
-local function awaitReconnect()
-	local message
-	repeat
-		_, message = rednet.receive(protocal)
-	until message.title == "snavesutit:reconnect"
-end
-
-local function awaitMessage(title)
-	local message
-	repeat
-		_, message = rednet.receive(protocal)
-	until message.title == title
-	return message
-end
+local net = requireExternal(
+	"https://raw.githubusercontent.com/SnaveSutit/cc-turtle-scripts/main/scripts/libs/networking.lua")
 
 local function main()
-	rednet.open("back")
-	rednet.host(protocal, "snavesutit:handheld_flight_platform_controller")
-
+	net.init(modem, protocal)
+	net.host(hostname)
 	print("Looking for platform...")
 
-	local senderID, message
-	repeat
-		senderID, message = rednet.receive(protocal)
-	until message.title == "snavesutit:link_controller"
-	platformID = senderID
+	local success
+	while platformID == nil do
+		success = net.listenForRequest("snavesutit:link_controller", function(data, otherID)
+			if data.isPlatform then
+				platformID = otherID
+				print("Found platform: " .. platformID)
+			end
+		end)
+		if not success then
+			print("Failed to link to platform.")
+			sleep(1)
+		end
+	end
+	print("Linked!")
+	net.unhost(hostname)
 
-	print("Found platform: " .. platformID)
-	print("Current position: " .. message.position.x .. ", " .. message.position.z)
-	print("Target position: " .. message.targetPosition.x .. ", " .. message.targetPosition.z)
-
-	rednet.unhost(protocal)
+	-- print("Current position: " .. message.position.x .. ", " .. message.position.z)
+	-- print("Target position: " .. message.targetPosition.x .. ", " .. message.targetPosition.z)
 
 	while true do
 		io.stdout:write("Enter platform command\n: ")

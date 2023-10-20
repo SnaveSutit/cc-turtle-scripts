@@ -6,12 +6,14 @@ local function requireExternal(url)
 		print("Downloading " .. url .. " to " .. filename .. "...")
 		shell.run("wget", url, filename)
 	end
-	return require(filename)
+	return require(filename:match("[^%.]+"))
 end
 
+local modem = peripheral.find("modem")
 local controllerID
 local protocal = "snavesutit:flight_platform_controller"
-local net = requireExternal("")
+local net = requireExternal(
+	"https://raw.githubusercontent.com/SnaveSutit/cc-turtle-scripts/main/scripts/libs/networking.lua")
 
 local state = {
 	moving = false,
@@ -36,17 +38,28 @@ local function loadState()
 end
 
 local function lookForControllers()
-	print("Looking for controllers...")
-	repeat
-		controllerID = rednet.lookup(protocal)
-		sleep(1)
-	until controllerID ~= nil
-	print("Found controller: " .. controllerID)
+	while controllerID == nil do
+		print("Looking for controllers...")
+		repeat
+			controllerID = rednet.lookup(protocal)
+			sleep(1)
+		until controllerID ~= nil
+		print("Found controller: " .. controllerID)
+		print("Attempting to link...")
 
-	send(controllerID, "snavesutit:link_controller", {
-		position = state.position,
-		targetPosition = state.targetPosition
-	})
+		local success = net.requestFrom(controllerID, "snavesutit:link_controller", {
+			title = "snavesutit:link_controller",
+			isPlatform = true
+		})
+
+		if not success then
+			print("Failed to link to controller.")
+			controllerID = nil
+			sleep(1)
+		else
+			print("Linked!")
+		end
+	end
 end
 
 local function reconnectController()
@@ -125,8 +138,11 @@ local function parseCommand(command)
 	end
 end
 
+local function test()
+end
+
 local function main()
-	rednet.open("right")
+	net.init(modem, protocal)
 	loadState()
 	saveState()
 
@@ -210,4 +226,5 @@ local function main()
 	end
 end
 
-main()
+-- main()
+test()
