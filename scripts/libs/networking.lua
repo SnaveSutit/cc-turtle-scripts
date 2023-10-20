@@ -173,4 +173,18 @@ net.listenForRequest = function(title, func)
 	return net.sendTo(computerID, title .. "!!DATA", sendData)
 end
 
+net.heartbeatSender = function(computerID)
+	local success = true
+	while success do
+		success = net.sendTo(computerID, "heartbeat", {})
+	end
+end
+
+net.heartbeatReciever = function(computerID)
+	local success = true
+	while success do
+		success = net.receiveFrom(computerID, "heartbeat")
+	end
+end
+
 return net
