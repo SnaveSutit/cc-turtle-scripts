@@ -86,7 +86,7 @@ net.receiveFrom = function(computerID, title, func)
 		local senderID, message
 		repeat
 			senderID, message = rednet.receive(_protocol)
-			print("Recieved message: " .. message.title .. " from " .. senderID)
+			-- print("Recieved message: " .. message.title .. " from " .. senderID)
 		until senderID == computerID
 			and type(message) == "table"
 			and message.title == title
@@ -95,7 +95,7 @@ net.receiveFrom = function(computerID, title, func)
 		if func then
 			func(message.data, senderID)
 		end
-		print("Sending ack: " .. title .. " to " .. senderID)
+		-- print("Sending ack: " .. title .. " to " .. senderID)
 		rednet.send(senderID, { title .. "!!ACK" })
 	end
 
@@ -129,6 +129,7 @@ net.receive = function(title, func)
 		if func then
 			func(message.data, senderID)
 		end
+		print("Sending ack: " .. title .. " to " .. senderID)
 		rednet.send(senderID, { title .. "!!ACK" })
 	end
 
@@ -139,7 +140,6 @@ net.receive = function(title, func)
 	timerID = os.startTimer(_timeout)
 	print("Waiting for message: " .. title)
 	parallel.waitForAny(receiveAck, timeoutTimer)
-	print("Recieved message: " .. title)
 	if success then
 		os.cancelTimer(timerID)
 		return true
