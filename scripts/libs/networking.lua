@@ -141,12 +141,10 @@ net.requestFrom = function(computerID, title, data, func)
 end
 
 net.listenForRequestFrom = function(computerID, title, func)
-	while true do
-		local data, sendData
-		net.recieveFrom(computerID, title, function(_data) data = _data end)
-		sendData = func(data)
-		net.sendTo(computerID, title .. "!!DATA", sendData)
-	end
+	local data, sendData
+	net.recieveFrom(computerID, title, function(_data) data = _data end)
+	sendData = func(data)
+	net.sendTo(computerID, title .. "!!DATA", sendData)
 end
 
 return net
