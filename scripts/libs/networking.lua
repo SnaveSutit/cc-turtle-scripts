@@ -1,6 +1,7 @@
 local net = {}
 
 local _initialized, _protocal
+local _timeout = 10
 
 local function assertInit()
 	if not _initialized then
@@ -19,6 +20,10 @@ net.init = function(modem, protocal)
 	rednet.open(peripheral.getName(modem))
 	_protocal = protocal
 	_initialized = true
+end
+
+net.setTimeout = function(timeout)
+	_timeout = timeout
 end
 
 net.host = function(hostname)
@@ -62,7 +67,7 @@ net.sendTo = function(computerID, title, data)
 		awaitTimer(timerID)
 	end
 
-	timerID = os.startTimer(30)
+	timerID = os.startTimer(_timeout)
 	parallel.waitForAny(sendRecieve, timeoutTimer)
 	if success then
 		os.cancelTimer(timerID)
@@ -94,7 +99,7 @@ net.recieveFrom = function(computerID, title, func)
 		awaitTimer(timerID)
 	end
 
-	timerID = os.startTimer(30)
+	timerID = os.startTimer(_timeout)
 	parallel.waitForAny(recieveAck, timeoutTimer)
 	if success then
 		os.cancelTimer(timerID)
@@ -126,7 +131,7 @@ net.recieve = function(title, func)
 		awaitTimer(timerID)
 	end
 
-	timerID = os.startTimer(30)
+	timerID = os.startTimer(_timeout)
 	parallel.waitForAny(recieveAck, timeoutTimer)
 	if success then
 		os.cancelTimer(timerID)
