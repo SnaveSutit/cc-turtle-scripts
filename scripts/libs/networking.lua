@@ -178,6 +178,7 @@ net.heartbeatSender = function(computerID, timeout)
 	local success = true
 	while success do
 		success = net.sendTo(computerID, "heartbeat", {})
+		print("Thump thump.")
 		sleep(timeout)
 	end
 end
@@ -187,6 +188,7 @@ net.heartbeatReciever = function(computerID, timeout)
 	local success = true
 	while success do
 		success = net.receiveFrom(computerID, "heartbeat")
+		print("Thump thump.")
 		sleep(timeout)
 	end
 end
