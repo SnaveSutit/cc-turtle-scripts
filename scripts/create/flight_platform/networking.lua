@@ -153,6 +153,8 @@ net.requestFrom = function(computerID, title, data, func)
 	if not success then
 		return false
 	end
+	print("Sent request: " .. title .. " to " .. computerID)
+	print("Awaiting response...")
 	return net.receiveFrom(computerID, title .. "!!DATA", func)
 end
 
