@@ -1,7 +1,7 @@
 local net = {}
 
 local _initialized, _protocol
-local _timeout = 10
+local _timeout = 30
 
 local function assertInit()
 	if not _initialized then
