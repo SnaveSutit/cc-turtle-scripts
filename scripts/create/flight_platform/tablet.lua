@@ -10,14 +10,14 @@ local function requireExternal(url)
 end
 
 local modem = peripheral.find("modem")
-local protocal = "snavesutit:flight_platform_controller"
+local protocol = "snavesutit:flight_platform_controller"
 local hostname = "snavesutit:handheld_flight_platform_controller"
 local platformID
 local net = requireExternal(
 	"https://raw.githubusercontent.com/SnaveSutit/cc-turtle-scripts/main/scripts/libs/networking.lua")
 
 local function main()
-	net.init(modem, protocal)
+	net.init(modem, protocol)
 	net.host(hostname)
 	print("Looking for platform...")
 
@@ -46,7 +46,7 @@ local function main()
 		if command == "exit" then
 			rednet.send(platformID, {
 				title = "disconnect"
-			}, protocal)
+			}, protocol)
 			print("Disconnected from platform.")
 			break
 		elseif command:sub(1, 4) == "move" then
@@ -60,7 +60,7 @@ local function main()
 				title = "move",
 				direction = direction,
 				distance = distance
-			}, protocal)
+			}, protocol)
 			print("Moving " .. direction .. " " .. distance .. " chunks...")
 			awaitReconnect()
 			print("Done moving " .. direction .. ".")
@@ -74,7 +74,7 @@ local function main()
 					title = "settarget",
 					x = tonumber(x),
 					z = tonumber(z)
-				}, protocal)
+				}, protocol)
 				local data = awaitMessage("snavesutit:target_set")
 				print("Set target position to " .. x .. ", " .. z .. ".")
 				print("Distance to target: " .. data.dx .. ", " .. data.dz .. ".")
@@ -94,14 +94,14 @@ local function main()
 		elseif command == "setzero" then
 			rednet.send(platformID, {
 				title = "setzero"
-			}, protocal)
+			}, protocol)
 			print("Zeroing platform position...")
 			awaitReconnect()
 			print("Zeroed platform position.")
 		elseif command == "getpos" then
 			rednet.send(platformID, {
 				title = "getpos"
-			}, protocal)
+			}, protocol)
 			local data = awaitMessage("snavesutit:position")
 			print("Current position: " .. data.x .. ", " .. data.z)
 			awaitReconnect()

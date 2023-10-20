@@ -1,6 +1,6 @@
 local net = {}
 
-local _initialized, _protocal
+local _initialized, _protocol
 local _timeout = 5
 
 local function assertInit()
@@ -18,7 +18,7 @@ end
 
 net.init = function(modem, protocal)
 	rednet.open(peripheral.getName(modem))
-	_protocal = protocal
+	_protocol = protocal
 	_initialized = true
 end
 
@@ -28,12 +28,12 @@ end
 
 net.host = function(hostname)
 	assertInit()
-	rednet.host(_protocal, hostname)
+	rednet.host(_protocol, hostname)
 end
 
 net.unhost = function(hostname)
 	assertInit()
-	rednet.unhost(_protocal, hostname)
+	rednet.unhost(_protocol, hostname)
 end
 
 net.sendTo = function(computerID, title, data)
@@ -47,7 +47,7 @@ net.sendTo = function(computerID, title, data)
 
 			local senderID, message
 			repeat
-				senderID, message = rednet.recieve(_protocal)
+				senderID, message = rednet.recieve(_protocol)
 			until senderID == computerID
 				and type(message) == "table"
 				and message.title == (title .. "!!ACK")
@@ -83,7 +83,7 @@ net.recieveFrom = function(computerID, title, func)
 	local function recieveAck()
 		local senderID, message
 		repeat
-			senderID, message = rednet.recieve(_protocal)
+			senderID, message = rednet.recieve(_protocol)
 		until senderID == computerID
 			and type(message) == "table"
 			and message.title == title
@@ -115,7 +115,7 @@ net.recieve = function(title, func)
 	local function recieveAck()
 		local senderID, message
 		repeat
-			senderID, message = rednet.recieve(_protocal)
+			senderID, message = rednet.recieve(_protocol)
 		until
 			type(message) == "table"
 			and message.title == title

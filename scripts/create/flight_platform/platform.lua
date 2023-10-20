@@ -11,7 +11,7 @@ end
 
 local modem = peripheral.find("modem")
 local controllerID
-local protocal = "snavesutit:flight_platform_controller"
+local protocol = "snavesutit:flight_platform_controller"
 local net = requireExternal(
 	"https://raw.githubusercontent.com/SnaveSutit/cc-turtle-scripts/main/scripts/libs/networking.lua")
 
@@ -41,7 +41,7 @@ local function lookForControllers()
 	while controllerID == nil do
 		print("Looking for controllers...")
 		repeat
-			controllerID = rednet.lookup(protocal)
+			controllerID = rednet.lookup(protocol)
 			sleep(1)
 		until controllerID ~= nil
 		print("Found controller: " .. controllerID)
@@ -67,7 +67,7 @@ local function reconnectController()
 	controllerID = state.connectionID
 	rednet.send(controllerID, {
 		title = "snavesutit:reconnect"
-	}, protocal)
+	}, protocol)
 	print("Reconnected!")
 end
 
@@ -121,7 +121,7 @@ local function parseCommand(command)
 			title = "snavesutit:target_set",
 			dx = state.targetPosition.x - state.position.x,
 			dz = state.targetPosition.z - state.position.z
-		}, protocal)
+		}, protocol)
 		os.reboot()
 	elseif command.title == "setzero" then
 		state.position = { x = 0, z = 0 }
@@ -133,7 +133,7 @@ local function parseCommand(command)
 			title = "snavesutit:position",
 			x = state.position.x,
 			z = state.position.z
-		}, protocal)
+		}, protocol)
 		os.reboot()
 	end
 end
@@ -142,7 +142,7 @@ local function test()
 end
 
 local function main()
-	net.init(modem, protocal)
+	net.init(modem, protocol)
 	loadState()
 	saveState()
 
@@ -165,7 +165,7 @@ local function main()
 				title = "snavesutit:target_update",
 				dx = xDistance,
 				dz = zDistance
-			}, protocal)
+			}, protocol)
 		end
 
 		state.distance = state.distance - 1
@@ -203,7 +203,7 @@ local function main()
 			rednet.send(state.connectionID, {
 				title = "snavesutit:target_update",
 				reachedTarget = true
-			}, protocal)
+			}, protocol)
 		end
 		return
 	end
@@ -217,7 +217,7 @@ local function main()
 	saveState()
 
 	while true do
-		local senderID, message = rednet.receive(protocal)
+		local senderID, message = rednet.receive(protocol)
 		if senderID == controllerID then
 			if parseCommand(message) then
 				break
