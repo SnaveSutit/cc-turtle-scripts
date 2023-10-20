@@ -41,7 +41,7 @@ net.sendTo = function(computerID, title, data)
 	local timerID, success
 
 	local function sendreceive()
-		local timerID
+		local retryTimerID
 		local function trySend()
 			rednet.send(computerID, { title, data })
 			print("Sent message: " .. title .. " to " .. computerID)
@@ -54,13 +54,13 @@ net.sendTo = function(computerID, title, data)
 				and type(message) == "table"
 				and message.title == (title .. "!!ACK")
 			success = true
-			os.cancelTimer(timerID)
+			os.cancelTimer(retryTimerID)
 		end
 		local function retryTimer()
-			awaitTimer(timerID)
+			awaitTimer(retryTimerID)
 		end
 		while not success do
-			timerID = os.startTimer(1)
+			retryTimerID = os.startTimer(1)
 			parallel.waitForAny(trySend, retryTimer)
 		end
 	end
