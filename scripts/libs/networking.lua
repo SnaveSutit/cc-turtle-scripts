@@ -1,7 +1,7 @@
 local net = {}
 
 local _initialized, _protocol
-local _timeout = 30
+local _timeout = 10
 
 local function assertInit()
 	if not _initialized then
@@ -173,17 +173,21 @@ net.listenForRequest = function(title, func)
 	return net.sendTo(computerID, title .. "!!DATA", sendData)
 end
 
-net.heartbeatSender = function(computerID)
+net.heartbeatSender = function(computerID, timeout)
+	timeout = timeout or 2
 	local success = true
 	while success do
 		success = net.sendTo(computerID, "heartbeat", {})
+		sleep(timeout)
 	end
 end
 
-net.heartbeatReciever = function(computerID)
+net.heartbeatReciever = function(computerID, timeout)
+	timeout = timeout or 2
 	local success = true
 	while success do
 		success = net.receiveFrom(computerID, "heartbeat")
+		sleep(timeout)
 	end
 end
 
