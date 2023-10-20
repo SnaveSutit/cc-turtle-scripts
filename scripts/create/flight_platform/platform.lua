@@ -13,7 +13,9 @@ local modem = peripheral.find("modem")
 local controllerID
 local protocol = "snavesutit:flight_platform_controller"
 local net = requireExternal(
-	"https://raw.githubusercontent.com/SnaveSutit/cc-turtle-scripts/main/scripts/libs/networking.lua")
+	"http://localhost:3000/networking.lua"
+-- "https://raw.githubusercontent.com/SnaveSutit/cc-turtle-scripts/main/scripts/libs/networking.lua"
+)
 
 local state = {
 	moving = false,
@@ -48,7 +50,6 @@ local function lookForControllers()
 		print("Attempting to link...")
 
 		local success = net.requestFrom(controllerID, "snavesutit:link_controller", {
-			title = "snavesutit:link_controller",
 			isPlatform = true
 		})
 
@@ -58,6 +59,8 @@ local function lookForControllers()
 			sleep(1)
 		else
 			print("Linked!")
+			state.connectionID = controllerID
+			saveState()
 		end
 	end
 end
@@ -138,9 +141,6 @@ local function parseCommand(command)
 	end
 end
 
-local function test()
-end
-
 local function main()
 	net.init(modem, protocol)
 	loadState()
@@ -154,77 +154,80 @@ local function main()
 	print("Moving: " .. tostring(state.moving))
 	print("Connected: " .. tostring(not not state.connectionID))
 
-	if state.moving then
-		print("Resuming movement: " .. state.direction .. " " .. state.distance .. " chunks...")
-		local xDistance = state.targetPosition.x - state.position.x
-		local zDistance = state.targetPosition.z - state.position.z
-		print("Distance left to traverse: ", zDistance, xDistance)
+	lookForControllers()
 
-		if state.connectionID ~= nil then
-			rednet.send(state.connectionID, {
-				title = "snavesutit:target_update",
-				dx = xDistance,
-				dz = zDistance
-			}, protocol)
-		end
+	print("Connected to controller: " .. state.connectionID)
 
-		state.distance = state.distance - 1
-		if state.distance <= 0 then
-			print("Done moving " .. state.direction .. ".")
-			state.moving = false
-			saveState()
-		else
-			triggerMovement(state.direction, state.distance)
-			return
-		end
-	end
+	-- if state.moving then
+	-- 	print("Resuming movement: " .. state.direction .. " " .. state.distance .. " chunks...")
+	-- 	local xDistance = state.targetPosition.x - state.position.x
+	-- 	local zDistance = state.targetPosition.z - state.position.z
+	-- 	print("Distance left to traverse: ", zDistance, xDistance)
 
-	if not state.moving
-		and (state.position.x ~= state.targetPosition.x
-			or state.position.z ~= state.targetPosition.z)
-	then
-		print("Moving to target position...")
-		local xDistance = state.targetPosition.x - state.position.x
-		local zDistance = state.targetPosition.z - state.position.z
-		print("Distance left to traverse: ", zDistance, xDistance)
+	-- 	if state.connectionID ~= nil then
+	-- 		rednet.send(state.connectionID, {
+	-- 			title = "snavesutit:target_update",
+	-- 			dx = xDistance,
+	-- 			dz = zDistance
+	-- 		}, protocol)
+	-- 	end
 
-		if xDistance > 0 then
-			triggerMovement("right", math.abs(xDistance))
-		elseif xDistance < 0 then
-			triggerMovement("left", math.abs(xDistance))
-		elseif zDistance < 0 then
-			triggerMovement("front", math.abs(zDistance))
-		elseif zDistance > 0 then
-			triggerMovement("back", math.abs(zDistance))
-		end
+	-- 	state.distance = state.distance - 1
+	-- 	if state.distance <= 0 then
+	-- 		print("Done moving " .. state.direction .. ".")
+	-- 		state.moving = false
+	-- 		saveState()
+	-- 	else
+	-- 		triggerMovement(state.direction, state.distance)
+	-- 		return
+	-- 	end
+	-- end
 
-		sleep(0.25)
-		if state.connectionID ~= nil then
-			rednet.send(state.connectionID, {
-				title = "snavesutit:target_update",
-				reachedTarget = true
-			}, protocol)
-		end
-		return
-	end
+	-- if not state.moving
+	-- 	and (state.position.x ~= state.targetPosition.x
+	-- 		or state.position.z ~= state.targetPosition.z)
+	-- then
+	-- 	print("Moving to target position...")
+	-- 	local xDistance = state.targetPosition.x - state.position.x
+	-- 	local zDistance = state.targetPosition.z - state.position.z
+	-- 	print("Distance left to traverse: ", zDistance, xDistance)
 
-	if state.connectionID == nil then
-		lookForControllers()
-	else
-		reconnectController()
-	end
-	state.connectionID = controllerID
-	saveState()
+	-- 	if xDistance > 0 then
+	-- 		triggerMovement("right", math.abs(xDistance))
+	-- 	elseif xDistance < 0 then
+	-- 		triggerMovement("left", math.abs(xDistance))
+	-- 	elseif zDistance < 0 then
+	-- 		triggerMovement("front", math.abs(zDistance))
+	-- 	elseif zDistance > 0 then
+	-- 		triggerMovement("back", math.abs(zDistance))
+	-- 	end
 
-	while true do
-		local senderID, message = rednet.receive(protocol)
-		if senderID == controllerID then
-			if parseCommand(message) then
-				break
-			end
-		end
-	end
+	-- 	sleep(0.25)
+	-- 	if state.connectionID ~= nil then
+	-- 		rednet.send(state.connectionID, {
+	-- 			title = "snavesutit:target_update",
+	-- 			reachedTarget = true
+	-- 		}, protocol)
+	-- 	end
+	-- 	return
+	-- end
+
+	-- if state.connectionID == nil then
+	-- 	lookForControllers()
+	-- else
+	-- 	reconnectController()
+	-- end
+	-- state.connectionID = controllerID
+	-- saveState()
+
+	-- while true do
+	-- 	local senderID, message = rednet.receive(protocol)
+	-- 	if senderID == controllerID then
+	-- 		if parseCommand(message) then
+	-- 			break
+	-- 		end
+	-- 	end
+	-- end
 end
 
--- main()
-test()
+main()

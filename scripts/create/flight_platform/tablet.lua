@@ -6,7 +6,7 @@ local function requireExternal(url)
 		print("Downloading " .. url .. " to " .. filename .. "...")
 		shell.run("wget", url, filename)
 	end
-	return require(filename)
+	return require(filename:match("[^%.]+"))
 end
 
 local modem = peripheral.find("modem")
@@ -14,7 +14,9 @@ local protocol = "snavesutit:flight_platform_controller"
 local hostname = "snavesutit:handheld_flight_platform_controller"
 local platformID
 local net = requireExternal(
-	"https://raw.githubusercontent.com/SnaveSutit/cc-turtle-scripts/main/scripts/libs/networking.lua")
+	"http://localhost:3000/networking.lua"
+-- "https://raw.githubusercontent.com/SnaveSutit/cc-turtle-scripts/main/scripts/libs/networking.lua"
+)
 
 local function main()
 	net.init(modem, protocol)
@@ -24,6 +26,7 @@ local function main()
 	local success
 	while platformID == nil do
 		success = net.listenForRequest("snavesutit:link_controller", function(data, otherID)
+			print(textutils.serialise(data))
 			if data.isPlatform then
 				platformID = otherID
 				print("Found platform: " .. platformID)
