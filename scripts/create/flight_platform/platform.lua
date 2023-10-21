@@ -177,8 +177,8 @@ local function main()
 			end,
 			function()
 				net.listenForRequestFrom(state.controllerID, "snavesutit:setzero", function(data)
-					state.position = data.zeroPosition
-					state.targetPosition = data.zeroPosition
+					state.position = { x = data.zeroPosition.x, z = data.zeroPosition.z }
+					state.targetPosition = { x = data.zeroPosition.x, z = data.zeroPosition.z }
 					saveState()
 				end)
 				print("Zero set.")
