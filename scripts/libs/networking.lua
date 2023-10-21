@@ -152,23 +152,21 @@ end
 
 net.listenForRequestFrom = function(computerID, title, func)
 	local data, sendData, success
-	success = net.receiveFrom(computerID, title, function(_data) data = _data end)
-	if not success then
-		return false
-	end
+	repeat
+		success = net.receiveFrom(computerID, title, function(_data) data = _data end)
+	until success
 	sendData = func(data, computerID)
 	return net.sendTo(computerID, title .. "!!DATA", sendData)
 end
 
 net.listenForRequest = function(title, func)
 	local data, sendData, computerID, success
-	success = net.receive(title, function(_data, otherID)
-		data = _data
-		computerID = otherID
-	end)
-	if not success then
-		return false
-	end
+	repeat
+		success = net.receive(title, function(_data, otherID)
+			data = _data
+			computerID = otherID
+		end)
+	until success
 	sendData = func(data, computerID)
 	return net.sendTo(computerID, title .. "!!DATA", sendData)
 end

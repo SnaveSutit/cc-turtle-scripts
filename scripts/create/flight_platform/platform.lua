@@ -10,17 +10,14 @@ local function requireExternal(url)
 end
 
 local modem = peripheral.find("modem")
-local controllerID
 local protocol = "snavesutit:flight_platform_controller"
 local net = requireExternal(
+-- "http://localhost:3000/networking.lua"
 	"https://raw.githubusercontent.com/SnaveSutit/cc-turtle-scripts/main/scripts/libs/networking.lua"
 )
 
 local state = {
-	moving = false,
-	direction = nil,
-	distance = nil,
-	connectionID = nil,
+	controllerID = nil,
 	position = { x = 0, z = 0 },
 	targetPosition = { x = 0, z = 0 }
 }
@@ -39,51 +36,67 @@ local function loadState()
 end
 
 local function lookForControllers()
-	while controllerID == nil do
+	while state.controllerID == nil do
 		print("Looking for controllers...")
 		repeat
-			controllerID = rednet.lookup(protocol)
+			state.controllerID = rednet.lookup(protocol)
 			sleep(1)
-		until controllerID ~= nil
-		print("Found controller: " .. controllerID)
+		until state.controllerID ~= nil
+		print("Found controller: " .. state.controllerID)
 		print("Attempting to link...")
 
-		local success = net.requestFrom(controllerID, "snavesutit:link_controller", {
+		local success = net.requestFrom(state.controllerID, "snavesutit:link_controller", {
 			isPlatform = true
 		})
 
 		if not success then
 			print("Failed to link to controller.")
-			controllerID = nil
+			state.controllerID = nil
 			sleep(1)
 		else
 			print("Linked!")
-			state.connectionID = controllerID
 			saveState()
 		end
 	end
 end
 
 local function reconnectController()
-	print("Reconnecting to controller: " .. state.connectionID)
-	controllerID = state.connectionID
-	rednet.send(controllerID, {
-		title = "snavesutit:reconnect"
-	}, protocol)
-	print("Reconnected!")
+	local tries = 1
+	print("Attempting to reconnect controller: " .. state.controllerID)
+	local success, connected
+	success = net.requestFrom(state.controllerID, "snavesutit:reconnect", {
+		isPlatform = true
+	}, function(_connected)
+		connected = _connected
+	end)
+	if not (success or connected) then
+		print("Failed to reconnect to controller.")
+		sleep(1)
+		tries = tries + 1
+	else
+		print("Reconnected!")
+		return
+	end
+	print("Failed to reconnect to controller. Disconnecting...")
+	state.controllerID = nil
+	saveState()
 end
 
+local directionMap = {
+	north = "front",
+	east = "right",
+	south = "back",
+	west = "left"
+}
 
-local function triggerMovement(side, distance)
-	state.moving = true
-	state.direction = side
-	state.distance = distance
+local function triggerMovement(direction)
+	local side = directionMap[direction]
 	if side == "front" then  -- North
 		state.position.z = state.position.z - 1
-	elseif side == "back" then -- South
-		state.position.z = state.position.z + 1
 	elseif side == "right" then -- East
 		state.position.x = state.position.x + 1
+	elseif side == "back" then -- South
+		state.position.z = state.position.z + 1
 	elseif side == "left" then -- West
 		state.position.x = state.position.x - 1
 	end
@@ -95,51 +108,6 @@ local function triggerMovement(side, distance)
 	sleep(0.05)
 end
 
-local function parseCommand(command)
-	if command.title == "disconnect" then
-		state.connectionID = nil
-		saveState()
-		print("Disconnected from controller.")
-		return true
-	elseif command.title == "move" then
-		if command.direction == "north" then
-			state.targetPosition.z = state.targetPosition.z - command.distance
-			triggerMovement("front", command.distance)
-		elseif command.direction == "south" then
-			state.targetPosition.z = state.targetPosition.z + command.distance
-			triggerMovement("back", command.distance)
-		elseif command.direction == "east" then
-			state.targetPosition.x = state.targetPosition.x + command.distance
-			triggerMovement("right", command.distance)
-		elseif command.direction == "west" then
-			state.targetPosition.x = state.targetPosition.x - command.distance
-			triggerMovement("left", command.distance)
-		end
-	elseif command.title == "settarget" then
-		state.targetPosition.x = command.x ~= nil and command.x or state.position.x
-		state.targetPosition.z = command.z ~= nil and command.z or state.position.z
-		saveState()
-		rednet.send(controllerID, {
-			title = "snavesutit:target_set",
-			dx = state.targetPosition.x - state.position.x,
-			dz = state.targetPosition.z - state.position.z
-		}, protocol)
-		os.reboot()
-	elseif command.title == "setzero" then
-		state.position = { x = 0, z = 0 }
-		state.targetPosition = { x = 0, z = 0 }
-		saveState()
-		os.reboot()
-	elseif command.title == "getpos" then
-		rednet.send(controllerID, {
-			title = "snavesutit:position",
-			x = state.position.x,
-			z = state.position.z
-		}, protocol)
-		os.reboot()
-	end
-end
-
 local function main()
 	net.init(modem, protocol)
 	loadState()
@@ -147,86 +115,94 @@ local function main()
 
 	sleep(0.1)
 
+	local distanceX = state.targetPosition.x - state.position.x
+	local distanceZ = state.targetPosition.z - state.position.z
+
 	shell.run("clear")
 	print("Current position: " .. state.position.x .. ", " .. state.position.z)
 	print("Target position: " .. state.targetPosition.x .. ", " .. state.targetPosition.z)
-	print("Moving: " .. tostring(state.moving))
-	print("Connected: " .. tostring(not not state.connectionID))
+	print("Distance: " .. distanceX .. ", " .. distanceZ)
+	print("Connected: " .. tostring(not not state.controllerID))
 
-	lookForControllers()
 
-	print("Connected to controller: " .. state.connectionID)
+	if state.controllerID ~= nil then
+		reconnectController()
+	end
+	if state.controllerID == nil then
+		lookForControllers()
+	end
+	saveState()
 
-	-- if state.moving then
-	-- 	print("Resuming movement: " .. state.direction .. " " .. state.distance .. " chunks...")
-	-- 	local xDistance = state.targetPosition.x - state.position.x
-	-- 	local zDistance = state.targetPosition.z - state.position.z
-	-- 	print("Distance left to traverse: ", zDistance, xDistance)
+	if not (distanceX == 0 and distanceZ == 0) then
+		if distanceZ < 0 then
+			triggerMovement("north")
+		elseif distanceX > 0 then
+			triggerMovement("east")
+		elseif distanceZ > 0 then
+			triggerMovement("south")
+		elseif distanceX < 0 then
+			triggerMovement("west")
+		else
+			error("Invalid target position")
+		end
+		sleep(1)
+	end
 
-	-- 	if state.connectionID ~= nil then
-	-- 		rednet.send(state.connectionID, {
-	-- 			title = "snavesutit:target_update",
-	-- 			dx = xDistance,
-	-- 			dz = zDistance
-	-- 		}, protocol)
-	-- 	end
-
-	-- 	state.distance = state.distance - 1
-	-- 	if state.distance <= 0 then
-	-- 		print("Done moving " .. state.direction .. ".")
-	-- 		state.moving = false
-	-- 		saveState()
-	-- 	else
-	-- 		triggerMovement(state.direction, state.distance)
-	-- 		return
-	-- 	end
-	-- end
-
-	-- if not state.moving
-	-- 	and (state.position.x ~= state.targetPosition.x
-	-- 		or state.position.z ~= state.targetPosition.z)
-	-- then
-	-- 	print("Moving to target position...")
-	-- 	local xDistance = state.targetPosition.x - state.position.x
-	-- 	local zDistance = state.targetPosition.z - state.position.z
-	-- 	print("Distance left to traverse: ", zDistance, xDistance)
-
-	-- 	if xDistance > 0 then
-	-- 		triggerMovement("right", math.abs(xDistance))
-	-- 	elseif xDistance < 0 then
-	-- 		triggerMovement("left", math.abs(xDistance))
-	-- 	elseif zDistance < 0 then
-	-- 		triggerMovement("front", math.abs(zDistance))
-	-- 	elseif zDistance > 0 then
-	-- 		triggerMovement("back", math.abs(zDistance))
-	-- 	end
-
-	-- 	sleep(0.25)
-	-- 	if state.connectionID ~= nil then
-	-- 		rednet.send(state.connectionID, {
-	-- 			title = "snavesutit:target_update",
-	-- 			reachedTarget = true
-	-- 		}, protocol)
-	-- 	end
-	-- 	return
-	-- end
-
-	-- if state.connectionID == nil then
-	-- 	lookForControllers()
-	-- else
-	-- 	reconnectController()
-	-- end
-	-- state.connectionID = controllerID
-	-- saveState()
-
-	-- while true do
-	-- 	local senderID, message = rednet.receive(protocol)
-	-- 	if senderID == controllerID then
-	-- 		if parseCommand(message) then
-	-- 			break
-	-- 		end
-	-- 	end
-	-- end
+	local exit = false
+	while (state.controllerID ~= nil and not exit) do
+		parallel.waitForAny(
+			function()
+				net.heartbeatSender(state.controllerID)
+				print("Lost connection to controller.")
+				state.controllerID = nil
+				saveState()
+			end,
+			function()
+				-- TODO: Implement controller's side of re-connection
+				net.listenForRequestFrom(state.controllerID, "snavesutit:reconnect", function(data, otherID)
+					if data.isPlatform and state.controllerID == otherID then
+						print("Controller Reconnected!")
+					end
+				end)
+			end,
+			function()
+				-- TODO: Implement controller's side of re-connection
+				net.listenForRequestFrom(state.controllerID, "snavesutit:disconnect", function(data, otherID)
+					if data.isController and state.controllerID == otherID then
+						print("Controller Disconnected: " .. data.reason)
+						state.controllerID = nil
+						saveState()
+					end
+				end)
+			end,
+			function()
+				net.listenForRequestFrom(state.controllerID, "snavesutit:setzero", function(data)
+					state.position = data.zeroPosition
+					state.targetPosition = data.zeroPosition
+					saveState()
+				end)
+				print("Zero set.")
+			end,
+			function()
+				net.listenForRequestFrom(state.controllerID, "snavesutit:settargetpos", function(data)
+					state.targetPosition = data.targetPosition
+					saveState()
+				end)
+				print("Target position set to " .. state.targetPosition.x .. ", " .. state.targetPosition.z)
+				exit = true
+			end,
+			function()
+				net.listenForRequestFrom(state.controllerID, "snavesutit:getpos", function()
+					print("Position requested.")
+					return { position = state.position, targetPosition = state.targetPosition }
+				end)
+				print("Position sent.")
+			end
+		)
+		sleep(0.1)
+	end
 end
 
 main()
+sleep(2)
+os.reboot()
