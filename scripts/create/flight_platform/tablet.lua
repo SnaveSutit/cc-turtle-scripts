@@ -44,7 +44,7 @@ local function parseCommand(command)
 			end
 		end
 	elseif command == "setzero" then
-		local success = net.requestFrom(platformID, "snavesutit:setzeropos", {
+		local success = net.requestFrom(platformID, "snavesutit:setzero", {
 			zeroPosition = { x = 0, z = 0 }
 		})
 		if not success then
