@@ -4,6 +4,7 @@ local state = {}
 lib.load = function(default)
 	if not fs.exists("state") then
 		state = default or {}
+		lib.save()
 		return
 	end
 	local file = fs.open("state", "r")
