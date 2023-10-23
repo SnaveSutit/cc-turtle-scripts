@@ -56,7 +56,6 @@ local function lookForControllers()
 end
 
 local function reconnectController()
-	local tries = 1
 	print("Attempting to reconnect controller: " .. state.get("controllerID") .. "...")
 	local success, connected
 	success = net.requestFrom(state.get("controllerID"), "snavesutit:reconnect", {
@@ -65,15 +64,12 @@ local function reconnectController()
 		connected = _connected
 	end)
 	if not (success or connected) then
-		print("Failed to reconnect to controller.")
-		sleep(1)
-		tries = tries + 1
+		print("Failed to reconnect to controller. Disconnecting...")
+		state.set("controllerID", nil)
 	else
 		print("Reconnected!")
 		return
 	end
-	print("Failed to reconnect to controller. Disconnecting...")
-	state.set("controllerID", nil)
 end
 
 local directionMap = {

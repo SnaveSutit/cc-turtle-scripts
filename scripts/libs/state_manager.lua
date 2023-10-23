@@ -8,6 +8,7 @@ local _state = {}
 lib.load = function(stateID, default)
 	_stateID = stateID
 	if not fs.exists(_stateID) then
+		print("State file '" .. _stateID .. "' not found, creating a new one...")
 		_state = default or {}
 		lib.save()
 		return
