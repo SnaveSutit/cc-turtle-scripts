@@ -1,5 +1,7 @@
 -- Compressor
 -- wget http://localhost:3000/scripts/compression/compressor.lua startup.lua
+-- wget https://raw.githubusercontent.com/SnaveSutit/cc-turtle-scripts/main/scripts/compression/compressor.lua startup.lua
+
 local chest = peripheral.wrap("top")
 local modem = peripheral.find("modem")
 local protocol = "compression"
