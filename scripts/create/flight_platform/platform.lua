@@ -104,18 +104,18 @@ local function main()
 	sleep(0.5)
 
 	if state.get("controllerID") ~= nil then
-		state.set("targetPosition.x", state.get("position.x"))
-		state.set("targetPosition.z", state.get("position.z"))
 		reconnectController()
 	end
 	if state.get("controllerID") == nil then
+		state.set("targetPosition.x", state.get("position.x"))
+		state.set("targetPosition.z", state.get("position.z"))
 		lookForControllers()
 	end
 
 	local distanceX = state.get("targetPosition.x") - state.get("position.x")
 	local distanceZ = state.get("targetPosition.z") - state.get("position.z")
 
-	shell.run("clear")
+	-- shell.run("clear")
 	print("Current position: " .. state.get("position.x") .. ", " .. state.get("position.z"))
 	print("Target position: " .. state.get("targetPosition.x") .. ", " .. state.get("targetPosition.z"))
 	print("Distance: " .. distanceX .. ", " .. distanceZ)
