@@ -16,7 +16,7 @@ local modem = peripheral.find("modem")
 local protocol = "compression"
 local defaultState = {
 	input = false,
-	miscOutput = false,
+	miscOutputs = {},
 	outputs = {},
 }
 
@@ -63,10 +63,22 @@ local function isOutputFull(output)
 	return false
 end
 
+local function outputToMisc(inputChest, slot)
+	local miscOutputChest = state.get("miscOutputs")
+	for _, name in ipairs(miscOutputChest) do
+		local items = modem.callRemote(name, "list")
+		local size = modem.callRemote(name, "size")
+		if #items < size then
+			modem.callRemote(inputChest, "pushItems", name, slot)
+			return
+		end
+	end
+end
+
 local function takeInput()
 	local inputChest = state.get("input")
 	local lastItemName, outputChest
-	local miscOutputChest = state.get("miscOutput")
+	local miscOutputChest = state.get("miscOutputs")
 	while true do
 		local items = modem.callRemote(inputChest, "list")
 		print("Got " .. #items .. " items")
@@ -80,7 +92,7 @@ local function takeInput()
 				if isOutputFull(miscOutputChest) then
 					error("Misc output full!")
 				end
-				modem.callRemote(inputChest, "pushItems", miscOutputChest, slot)
+				outputToMisc(inputChest, slot)
 			else
 				print("Pushing " .. item.name .. " to " .. outputChest)
 				if isOutputFull(outputChest) then
@@ -106,10 +118,10 @@ local function main()
 		error("No input chest specified.")
 	end
 
-	if not state.get("miscOutput") then
-		print("No misc output chest specified. Available chests:")
+	if not state.get("miscOutputs") or #state.get("miscOutputs") == 0 then
+		print("No misc output chest(s) specified. Available chests:")
 		print("  " .. table.concat(modem.getNamesRemote(), "\n  "))
-		error("No misc output chest specified.")
+		error("No misc output chest(s) specified.")
 	end
 
 	updateOutputChests()
