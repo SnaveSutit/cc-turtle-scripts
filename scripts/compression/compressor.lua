@@ -36,13 +36,13 @@ local function getChestModemName()
 	local message
 	local computerID = os.getComputerID()
 	repeat
+		sleep(1)
 		rednet.broadcast({
 			title = "getItemChest",
 			computerID = computerID,
 			itemName = os.getComputerLabel(),
 		}, protocol)
 		_, message = rednet.receive(protocol, 10)
-		sleep(1)
 	until type(message) == "table"
 		and message.receiverID == computerID
 		and message.title == "getItemChestResponse"
