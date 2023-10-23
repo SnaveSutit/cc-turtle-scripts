@@ -213,7 +213,7 @@ local function main()
 
 	saveState()
 	sleep(1)
-	os.reboot()
+	-- os.reboot()
 end
 
 main()
