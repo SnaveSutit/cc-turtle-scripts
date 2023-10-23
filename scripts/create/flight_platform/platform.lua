@@ -100,8 +100,7 @@ end
 local function main()
 	net.init(modem, protocol)
 	state.load(".platform_state", defaultState)
-
-	sleep(0.5)
+	sleep(0.25)
 
 	if state.get("controllerID") ~= nil then
 		reconnectController()
