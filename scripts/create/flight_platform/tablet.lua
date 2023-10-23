@@ -91,6 +91,7 @@ local function connectToPlatform()
 			if data.isPlatform then
 				platformID = otherID
 				print("Found platform: " .. platformID)
+				return true
 			end
 		end)
 		if not success then

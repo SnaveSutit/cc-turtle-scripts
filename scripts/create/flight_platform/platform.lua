@@ -63,12 +63,12 @@ local function reconnectController()
 	}, function(_connected)
 		connected = _connected
 	end)
-	if not (success or connected) then
-		print("Failed to reconnect to controller. Disconnecting...")
-		state.set("controllerID", nil)
-	else
+	if success or connected then
 		print("Reconnected!")
 		return
+	else
+		print("Failed to reconnect to controller. Disconnecting...")
+		state.set("controllerID", nil)
 	end
 end
 
