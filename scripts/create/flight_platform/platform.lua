@@ -49,7 +49,7 @@ local function lookForControllers()
 			state.set("controllerID", nil)
 			sleep(1)
 		else
-			state.set("controllerID", rednet.lookup(protocol))
+			state.set("controllerID", foundID)
 			print("Linked!")
 		end
 	end
