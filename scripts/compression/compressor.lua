@@ -78,11 +78,17 @@ local function main()
 				groupsAbove9x64[item.name] = groups[item.name]
 			end
 		end
+		local didCompress = false
 		for itemName, item in pairs(groupsAbove9x64) do
 			print("Compressing " .. itemName)
 			compress(item.slots)
+			didCompress = true
 		end
-		sleep(5)
+		if not didCompress then
+			sleep(5)
+		else
+			sleep(0.25)
+		end
 	end
 end
 
