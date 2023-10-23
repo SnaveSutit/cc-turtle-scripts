@@ -40,7 +40,7 @@ local function lookForControllers()
 		print("Found controller: " .. foundID)
 		print("Attempting to link...")
 
-		local success = net.requestFrom(state.get("controllerID"), "snavesutit:link_controller", {
+		local success = net.requestFrom(foundID, "snavesutit:link_controller", {
 			isPlatform = true
 		})
 
