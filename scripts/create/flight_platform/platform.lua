@@ -133,7 +133,7 @@ local function main()
 	end
 	saveState()
 
-	if not (distanceX == 0 and distanceZ == 0) then
+	if not (distanceX == 0 or distanceZ == 0) then
 		if distanceZ < 0 then
 			triggerMovement("north")
 		elseif distanceX > 0 then
