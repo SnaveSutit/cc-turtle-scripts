@@ -11,8 +11,8 @@ local function compress(inputSlots)
 	local totalCount = 0
 	local slot = 1
 	while slot <= 11 do
-		if turtle.getItemCount(slot) < 64 then
-			turtle.select(slot)
+		turtle.select(slot)
+		while turtle.getItemCount(slot) < 64 do
 			modem.callRemote(chestModemName, "pushItems", modem.getNameLocal(), table.remove(inputSlots, 1), nil, slot)
 		end
 		totalCount = totalCount + turtle.getItemCount(slot)
