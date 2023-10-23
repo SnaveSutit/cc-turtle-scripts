@@ -211,8 +211,6 @@ local function main()
 		sleep(0.1)
 	end
 
-	textutils.pagedTabulate(state)
-
 	saveState()
 	os.reboot()
 end
