@@ -1,4 +1,5 @@
 -- wget http://localhost:3000/platform.lua startup.lua
+-- wget https://raw.githubusercontent.com/SnaveSutit/cc-turtle-scripts/main/scripts/create/flight_platform/platform.lua startup.lua
 
 local function requireExternal(url)
 	local filename = url:match("[^/]+$")
