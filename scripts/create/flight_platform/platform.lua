@@ -188,7 +188,7 @@ local function main()
 			end,
 			function()
 				net.listenForRequestFrom(state.controllerID, "snavesutit:settargetpos", function(data)
-					state.targetPosition = data.targetPosition
+					state.targetPosition = { x = data.targetPosition.x, z = data.targetPosition.z }
 					saveState()
 				end)
 				print("Target position set to " .. state.targetPosition.x .. ", " .. state.targetPosition.z)
@@ -196,7 +196,7 @@ local function main()
 			end,
 			function()
 				net.listenForRequestFrom(state.controllerID, "snavesutit:setpos", function(data)
-					state.position = data.position
+					state.position = { x = data.position.x, z = data.position.z }
 					saveState()
 				end)
 				print("Target position set to " .. state.targetPosition.x .. ", " .. state.targetPosition.z)
