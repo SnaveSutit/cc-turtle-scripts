@@ -1,5 +1,5 @@
 -- wget http://localhost:3000/platform.lua startup.lua
--- wget https://raw.githubusercontent.com/SnaveSutit/cc-turtle-scripts/main/scripts/create/flight_platform/platform.lua startup.lua
+-- wget https://raw.githubusercontent.com/SnaveSutit/cc-turtle-scripts/main/scripts/create/flight_platform/platform.lua
 
 local function requireExternal(url)
 	local filename = url:match("[^/]+$")
@@ -24,14 +24,14 @@ local state = {
 }
 
 local function saveState()
-	local file = fs.open("state", "w")
+	local file = fs.open(".platform_state", "w")
 	file.write(textutils.serialize(state))
 	file.close()
 end
 
 local function loadState()
-	if not fs.exists("state") then return end
-	local file = fs.open("state", "r")
+	if not fs.exists(".platform_state") then return end
+	local file = fs.open(".platform_state", "r")
 	state = textutils.unserialize(file.readAll())
 	file.close()
 end
