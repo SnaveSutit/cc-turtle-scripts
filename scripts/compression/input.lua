@@ -96,7 +96,8 @@ local function takeInput()
 				print("Pushing " .. item.name .. " to " .. outputChest)
 				if isOutputFull(outputChest) then
 					print("Output for " .. item.name .. " full!")
-					os.reboot()
+					sleep(0.25)
+					-- os.reboot()
 				else
 					modem.callRemote(inputChest, "pushItems", outputChest, slot)
 				end
