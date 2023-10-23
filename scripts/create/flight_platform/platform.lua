@@ -114,7 +114,7 @@ local function main()
 	loadState()
 	saveState()
 
-	sleep(0.1)
+	sleep(0.25)
 
 	local distanceX = state.targetPosition.x - state.position.x
 	local distanceZ = state.targetPosition.z - state.position.z
