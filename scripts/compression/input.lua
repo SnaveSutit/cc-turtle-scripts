@@ -1,5 +1,6 @@
 -- Extractor
 -- wget http://localhost:3000/scripts/compression/input.lua startup.lua
+-- wget https://raw.githubusercontent.com/SnaveSutit/cc-turtle-scripts/main/scripts/compression/input.lua startup.lua
 
 local function requireExternal(url)
 	local filename = url:match("[^/]+$")
