@@ -114,7 +114,7 @@ local function main()
 	loadState()
 	saveState()
 
-	sleep(0.25)
+	sleep(1)
 
 	local distanceX = state.targetPosition.x - state.position.x
 	local distanceZ = state.targetPosition.z - state.position.z
@@ -146,7 +146,7 @@ local function main()
 		else
 			error("Invalid target position")
 		end
-		sleep(1)
+		return
 	end
 
 	local exit = false
@@ -187,6 +187,14 @@ local function main()
 			function()
 				net.listenForRequestFrom(state.controllerID, "snavesutit:settargetpos", function(data)
 					state.targetPosition = data.targetPosition
+					saveState()
+				end)
+				print("Target position set to " .. state.targetPosition.x .. ", " .. state.targetPosition.z)
+				exit = true
+			end,
+			function()
+				net.listenForRequestFrom(state.controllerID, "snavesutit:setpos", function(data)
+					state.position = data.position
 					saveState()
 				end)
 				print("Target position set to " .. state.targetPosition.x .. ", " .. state.targetPosition.z)

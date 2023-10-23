@@ -63,6 +63,21 @@ local function parseCommand(command)
 			print("Current Position: " .. data.position.x .. ", " .. data.position.z)
 			print("Target Position: " .. data.targetPosition.x .. ", " .. data.targetPosition.z)
 		end
+	elseif command:match("^setpos") then
+		local x, z = command:match("^setpos%s+(%-?%d+)%s+(%-?%d+)$")
+		x, z = tonumber(x), tonumber(z)
+		if x == nil or z == nil then
+			print("Invalid Coordinates.")
+		else
+			local success = net.requestFrom(platformID, "snavesutit:setpos", {
+				position = { x = x, z = z }
+			})
+			if not success then
+				print("Failed to set position. Platform may be disconnected.")
+			else
+				print("Set position to " .. x .. ", " .. z)
+			end
+		end
 	else
 		print("Invalid Command.")
 	end
