@@ -74,6 +74,7 @@ local function outputToMisc(inputChest, slot)
 			return
 		end
 	end
+	error("Misc output full!")
 end
 
 local function takeInput()
@@ -90,9 +91,6 @@ local function takeInput()
 			end
 			if not outputChest then
 				print("Pushing " .. item.name .. " to misc output")
-				if isOutputFull(miscOutputChest) then
-					error("Misc output full!")
-				end
 				outputToMisc(inputChest, slot)
 			else
 				print("Pushing " .. item.name .. " to " .. outputChest)
@@ -141,6 +139,7 @@ local function main()
 						chest = result,
 					}, protocol)
 				end
+				sleep(0.1)
 			end
 		end)
 	end

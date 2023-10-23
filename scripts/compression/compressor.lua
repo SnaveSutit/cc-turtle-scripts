@@ -42,6 +42,7 @@ local function getChestModemName()
 			itemName = os.getComputerLabel(),
 		}, protocol)
 		_, message = rednet.receive(protocol, 10)
+		sleep(1)
 	until type(message) == "table"
 		and message.receiverID == computerID
 		and message.title == "getItemChestResponse"
@@ -78,7 +79,7 @@ local function main()
 			print("Compressing " .. itemName)
 			compress(item.slots)
 		end
-		sleep(1)
+		sleep(5)
 	end
 end
 
