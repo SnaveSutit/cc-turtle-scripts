@@ -33,16 +33,21 @@ end
 
 local function getChestModemName()
 	print("Getting chest modem name...")
+	local inputComputerID
+	repeat
+		sleep(1)
+		inputComputerID = rednet.lookup(protocol, "input")
+	until inputComputerID
 	local message
 	local computerID = os.getComputerID()
 	repeat
-		sleep(1)
-		rednet.broadcast({
+		rednet.send(inputComputerID, {
 			title = "getItemChest",
 			computerID = computerID,
 			itemName = os.getComputerLabel(),
 		}, protocol)
 		_, message = rednet.receive(protocol, 10)
+		sleep(1)
 	until type(message) == "table"
 		and message.receiverID == computerID
 		and message.title == "getItemChestResponse"

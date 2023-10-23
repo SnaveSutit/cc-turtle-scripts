@@ -127,6 +127,7 @@ local function main()
 
 	while true do
 		parallel.waitForAny(takeInput, function()
+			rednet.host(protocol, "input")
 			local senderID, message
 			while true do
 				senderID, message = rednet.receive(protocol)
