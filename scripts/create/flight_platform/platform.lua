@@ -114,7 +114,17 @@ local function main()
 	loadState()
 	saveState()
 
-	sleep(1)
+	sleep(0.5)
+
+	if state.controllerID ~= nil then
+		state.targetPosition = state.position
+		saveState()
+		reconnectController()
+	end
+	if state.controllerID == nil then
+		lookForControllers()
+	end
+	saveState()
 
 	local distanceX = state.targetPosition.x - state.position.x
 	local distanceZ = state.targetPosition.z - state.position.z
@@ -123,16 +133,6 @@ local function main()
 	print("Current position: " .. state.position.x .. ", " .. state.position.z)
 	print("Target position: " .. state.targetPosition.x .. ", " .. state.targetPosition.z)
 	print("Distance: " .. distanceX .. ", " .. distanceZ)
-	print("Connected: " .. tostring(not not state.controllerID))
-
-
-	if state.controllerID ~= nil then
-		reconnectController()
-	end
-	if state.controllerID == nil then
-		lookForControllers()
-	end
-	saveState()
 
 	if (distanceX ~= 0 or distanceZ ~= 0) then
 		if distanceZ < 0 then
@@ -157,6 +157,7 @@ local function main()
 				print("Lost connection to controller.")
 				state.controllerID = nil
 				saveState()
+				exit = true
 			end,
 			function()
 				-- TODO: Implement controller's side of re-connection
@@ -173,6 +174,7 @@ local function main()
 						print("Controller Disconnected: " .. data.reason)
 						state.controllerID = nil
 						saveState()
+						exit = true
 					end
 				end)
 			end,
@@ -201,17 +203,19 @@ local function main()
 				exit = true
 			end,
 			function()
-				net.listenForRequestFrom(state.controllerID, "snavesutit:getpos", function()
-					print("Position requested.")
-					return { position = state.position, targetPosition = state.targetPosition }
-				end)
-				print("Position sent.")
+				while true do
+					net.listenForRequestFrom(state.controllerID, "snavesutit:getpos", function()
+						print("Position requested.")
+						return { position = state.position, targetPosition = state.targetPosition }
+					end)
+					print("Position sent.")
+				end
 			end
 		)
 		sleep(0.1)
 	end
+
+	os.reboot()
 end
 
 main()
-sleep(2)
-os.reboot()
