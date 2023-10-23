@@ -21,15 +21,6 @@ local defaultState = {
 	outputs = {},
 }
 
-local function rebootTurtles()
-	for _, name in ipairs(modem.getNamesRemote()) do
-		if name:match("^turtle") then
-			print("Rebooting " .. name)
-			modem.callRemote(name, "reboot")
-		end
-	end
-end
-
 local function updateOutputChests()
 	local outputs = state.get("outputs")
 	for _, name in ipairs(modem.getNamesRemote()) do
@@ -82,6 +73,7 @@ local function takeInput()
 	local lastItemName, outputChest
 	local miscOutputChest = state.get("miscOutputs")
 	while true do
+		local didMoveItems = false
 		local items = modem.callRemote(inputChest, "list")
 		print("Got " .. #items .. " items")
 		for slot, item in pairs(items) do
@@ -92,6 +84,7 @@ local function takeInput()
 			if not outputChest then
 				print("Pushing " .. item.name .. " to misc output")
 				outputToMisc(inputChest, slot)
+				didMoveItems = true
 			else
 				print("Pushing " .. item.name .. " to " .. outputChest)
 				if isOutputFull(outputChest) then
@@ -100,17 +93,19 @@ local function takeInput()
 					-- os.reboot()
 				else
 					modem.callRemote(inputChest, "pushItems", outputChest, slot)
+					didMoveItems = true
 				end
 			end
 		end
-		sleep(1)
+		if not didMoveItems then
+			sleep(5)
+		end
 	end
 end
 
 local function main()
 	state.load(".extractor_state", defaultState)
 	rednet.open(peripheral.getName(modem))
-	rebootTurtles()
 
 	if not state.get("input") then
 		print("No input chest specified. Available chests:")
