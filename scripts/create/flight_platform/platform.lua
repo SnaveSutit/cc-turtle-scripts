@@ -173,7 +173,6 @@ local function main()
 					if data.isController and state.controllerID == otherID then
 						print("Controller Disconnected: " .. data.reason)
 						state.controllerID = nil
-						saveState()
 						exit = true
 					end
 				end)
@@ -182,14 +181,12 @@ local function main()
 				net.listenForRequestFrom(state.controllerID, "snavesutit:setzero", function(data)
 					state.position = { x = data.zeroPosition.x, z = data.zeroPosition.z }
 					state.targetPosition = { x = data.zeroPosition.x, z = data.zeroPosition.z }
-					saveState()
 				end)
 				print("Zero set.")
 			end,
 			function()
 				net.listenForRequestFrom(state.controllerID, "snavesutit:settargetpos", function(data)
 					state.targetPosition = { x = data.targetPosition.x, z = data.targetPosition.z }
-					saveState()
 				end)
 				print("Target position set to " .. state.targetPosition.x .. ", " .. state.targetPosition.z)
 				exit = true
@@ -197,7 +194,6 @@ local function main()
 			function()
 				net.listenForRequestFrom(state.controllerID, "snavesutit:setpos", function(data)
 					state.position = { x = data.position.x, z = data.position.z }
-					saveState()
 				end)
 				print("Target position set to " .. state.targetPosition.x .. ", " .. state.targetPosition.z)
 				exit = true
@@ -215,6 +211,7 @@ local function main()
 		sleep(0.1)
 	end
 
+	saveState()
 	os.reboot()
 end
 
