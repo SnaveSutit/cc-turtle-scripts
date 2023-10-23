@@ -117,7 +117,7 @@ local function main()
 	sleep(0.5)
 
 	if state.controllerID ~= nil then
-		state.targetPosition = state.position
+		state.targetPosition = { x = state.position.x, z = state.position.z }
 		saveState()
 		reconnectController()
 	end
