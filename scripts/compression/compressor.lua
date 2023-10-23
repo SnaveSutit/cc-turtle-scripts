@@ -86,8 +86,6 @@ local function main()
 		end
 		if not didCompress then
 			sleep(5)
-		else
-			sleep(0.25)
 		end
 	end
 end
