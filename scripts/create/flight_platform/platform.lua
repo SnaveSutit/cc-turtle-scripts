@@ -100,7 +100,6 @@ end
 local function main()
 	net.init(modem, protocol)
 	state.load(".platform_state", defaultState)
-	sleep(0.25)
 
 	if state.get("controllerID") ~= nil then
 		reconnectController()
@@ -110,6 +109,7 @@ local function main()
 		state.set("targetPosition.z", state.get("position.z"))
 		lookForControllers()
 	end
+	sleep(0.25)
 
 	local distanceX = state.get("targetPosition.x") - state.get("position.x")
 	local distanceZ = state.get("targetPosition.z") - state.get("position.z")
