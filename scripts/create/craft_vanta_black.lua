@@ -22,7 +22,10 @@ while true do
 	turtle.select(11)
 	turtle.suckUp()
 
-	turtle.select(4)
 	turtle.craft()
-	turtle.drop()
+
+	for i = 1, 16 do
+		turtle.select(i)
+		turtle.drop()
+	end
 end
