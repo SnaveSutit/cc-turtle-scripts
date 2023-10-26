@@ -10,7 +10,7 @@ local function returnHomeAndUpdateDisplay()
 	if createSource then
 		createSource.clear()
 		createSource.setCursorPos(1, 1)
-		createSource.write("Vanta Black: " .. count .. "/" .. goal)
+		createSource.write("Vanta Black: " .. count .. "/" .. goal .. " (" .. math.floor(count / goal * 100) .. "%)")
 	end
 	sleep(10)
 end
