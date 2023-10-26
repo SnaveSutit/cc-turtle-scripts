@@ -16,7 +16,7 @@ local getAverageItemsPerSecond = function()
 		totalItems = totalItems + (itemHistory[i + 1].count - itemHistory[i].count)
 		totalTime = totalTime + (itemHistory[i + 1].time - itemHistory[i].time)
 	end
-	return totalItems / (totalTime / 1000)
+	return totalItems / totalTime
 end
 
 local function returnHomeAndUpdateDisplay()
