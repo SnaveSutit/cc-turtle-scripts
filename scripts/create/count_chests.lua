@@ -2,22 +2,20 @@
 
 local count = 0
 local goal = 153996
-local lastCheckTime = os.epoch()
-local timeHistory = { lastCheckTime }
+local timeHistory = { os.epoch() }
 
 local getAverageItemsPerSecond = function()
 	local total = 0
-	for _, time in pairs(timeHistory) do
-		total = total + time
+	for i = 2, #timeHistory do
+		total = total + (goal / (timeHistory[i] - timeHistory[i - 1]))
 	end
-	return count / (total / #timeHistory)
+	return total / (#timeHistory - 1)
 end
 
 local function returnHomeAndUpdateDisplay()
 	while turtle.back() do end
-	local currentTime = os.epoch()
 
-	table.insert(timeHistory, currentTime - lastCheckTime)
+	table.insert(timeHistory, os.epoch())
 
 	local createSource = peripheral.find("create_source")
 	if createSource then
@@ -28,7 +26,6 @@ local function returnHomeAndUpdateDisplay()
 		createSource.write("Items per second: " .. ("%.2f"):format(getAverageItemsPerSecond()))
 	end
 
-	lastCheckTime = currentTime
 	sleep(10)
 end
 
