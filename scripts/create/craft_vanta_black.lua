@@ -23,10 +23,22 @@ while true do
 	safeSuck(turtle.suckUp, 10)
 	safeSuck(turtle.suckUp, 11)
 
-	-- turtle.craft()
+	local craft = true
+	for i = 1, 11 do
+		if i % 4 == 0 then
+			i = i + 1
+		end
+		turtle.select(i)
+		if turtle.getItemCount(i) ~= 64 then
+			craft = false
+		end
+	end
 
-	-- for i = 1, 16 do
-	-- 	turtle.select(i)
-	-- 	turtle.drop()
-	-- end
+	if craft then
+		turtle.craft()
+		for i = 1, 16 do
+			turtle.select(i)
+			turtle.drop()
+		end
+	end
 end
