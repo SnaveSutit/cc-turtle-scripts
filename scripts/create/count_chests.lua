@@ -16,6 +16,8 @@ end
 local function returnHomeAndUpdateDisplay()
 	while turtle.back() do end
 
+	table.insert(timeHistory, os.epoch() - lastCheckTime)
+
 	local createSource = peripheral.find("create_source")
 	if createSource then
 		createSource.clear()
@@ -25,7 +27,6 @@ local function returnHomeAndUpdateDisplay()
 		createSource.write("Items per second: " .. ("%.2f"):format(getAverageItemsPerSecond()))
 	end
 
-	table.insert(timeHistory, os.epoch() - lastCheckTime)
 	sleep(10)
 end
 
