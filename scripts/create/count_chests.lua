@@ -53,9 +53,10 @@ local function returnHomeAndUpdateDisplay()
 		createSource.setCursorPos(1, 1)
 		createSource.write("Vanta Black: " .. count .. "/" .. goal .. " (" .. ("%.2f"):format(count / goal * 100) .. "%)")
 		createSource.setCursorPos(1, 2)
+		local avgItemsPerSecond = getAverageItemsPerSecond()
 		createSource.write(
-			" ETA: " .. getExpectedTimeRemaining(getAverageItemsPerSecond()) ..
-			" Items/s: " .. ("%.2f"):format(getAverageItemsPerSecond()))
+			" ETA: " .. getExpectedTimeRemaining(avgItemsPerSecond) ..
+			" Items/s: " .. ("%.2f"):format(avgItemsPerSecond))
 	end
 
 	sleep(5)
