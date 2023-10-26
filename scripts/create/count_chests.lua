@@ -2,6 +2,16 @@
 
 local count = 0
 local goal = 153996
+local lastCheckTime = os.epoch()
+local timeHistory = { lastCheckTime }
+
+local getAverageItemsPerSecond = function()
+	local total = 0
+	for _, time in pairs(timeHistory) do
+		total = total + time
+	end
+	return count / (total / #timeHistory)
+end
 
 local function returnHomeAndUpdateDisplay()
 	while turtle.back() do end
@@ -10,8 +20,12 @@ local function returnHomeAndUpdateDisplay()
 	if createSource then
 		createSource.clear()
 		createSource.setCursorPos(1, 1)
-		createSource.write("Vanta Black: " .. count .. "/" .. goal .. " (" .. math.floor(count / goal * 100) .. "%)")
+		createSource.write("Vanta Black: " .. count .. "/" .. goal .. " (" .. ("%.2f"):format(count / goal * 100) .. "%)")
+		createSource.setCursorPos(1, 2)
+		createSource.write("Items per second: " .. ("%.2f"):format(getAverageItemsPerSecond()))
 	end
+
+	table.insert(timeHistory, os.epoch() - lastCheckTime)
 	sleep(10)
 end
 
