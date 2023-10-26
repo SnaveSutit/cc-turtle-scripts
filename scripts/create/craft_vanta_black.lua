@@ -3,6 +3,7 @@
 local function safeSuck(suckFunc, slot)
 	local count = turtle.getItemCount(slot)
 	if count < 64 then
+		turtle.select(slot)
 		suckFunc(64 - count)
 		return true
 	end
