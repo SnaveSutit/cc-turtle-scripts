@@ -34,7 +34,7 @@ local function returnHomeAndUpdateDisplay()
 		createSource.write("Items per second: " .. ("%.2f"):format(getAverageItemsPerSecond()))
 	end
 
-	sleep(1)
+	sleep(10)
 end
 
 while true do
