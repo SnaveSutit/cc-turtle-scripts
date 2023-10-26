@@ -9,6 +9,9 @@ local getAverageItemsPerSecond = function()
 	if #itemHistory < 2 then
 		return 0
 	end
+	if #itemHistory > 20 then
+		table.remove(itemHistory, 1)
+	end
 
 	local totalItems = 0
 	local totalTime = 0
@@ -16,12 +19,19 @@ local getAverageItemsPerSecond = function()
 		totalItems = totalItems + (itemHistory[i + 1].count - itemHistory[i].count)
 		totalTime = totalTime + (itemHistory[i + 1].time - itemHistory[i].time)
 	end
-	print(totalItems, totalTime)
 	return totalItems / totalTime
 end
 
 local function returnHomeAndUpdateDisplay()
-	while turtle.back() do end
+	while true do
+		if not turtle.back() then
+			if turtle.getFuelLevel() == 0 then
+				turtle.refuel()
+			else
+				break
+			end
+		end
+	end
 
 	table.insert(itemHistory, { time = os.clock(), count = count })
 
@@ -34,7 +44,7 @@ local function returnHomeAndUpdateDisplay()
 		createSource.write("Items per second: " .. ("%.2f"):format(getAverageItemsPerSecond()))
 	end
 
-	sleep(10)
+	sleep(5)
 end
 
 while true do
@@ -53,7 +63,6 @@ while true do
 		if turtle.getFuelLevel() == 0 then
 			turtle.refuel()
 		else
-			print("Failed to move forward. Returning to base.")
 			returnHomeAndUpdateDisplay()
 		end
 	end
