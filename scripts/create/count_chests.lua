@@ -16,6 +16,7 @@ local getAverageItemsPerSecond = function()
 		totalItems = totalItems + (itemHistory[i + 1].count - itemHistory[i].count)
 		totalTime = totalTime + (itemHistory[i + 1].time - itemHistory[i].time)
 	end
+	print(totalItems, totalTime)
 	return totalItems / totalTime
 end
 
@@ -33,7 +34,7 @@ local function returnHomeAndUpdateDisplay()
 		createSource.write("Items per second: " .. ("%.2f"):format(getAverageItemsPerSecond()))
 	end
 
-	sleep(10)
+	sleep(1)
 end
 
 while true do
