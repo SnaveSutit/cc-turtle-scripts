@@ -3,6 +3,18 @@
 local count = 0
 local goal = 153996
 
+local function returnHomeAndUpdateDisplay()
+	while turtle.back() do end
+
+	local createSource = peripheral.find("create_source")
+	if createSource then
+		createSource.clear()
+		createSource.setCursorPos(1, 1)
+		createSource.write("Vanta Black: " .. count .. "/" .. goal)
+	end
+	sleep(10)
+end
+
 while true do
 	local chest = peripheral.find("inventory")
 	if chest then
@@ -14,14 +26,11 @@ while true do
 	end
 
 	if not turtle.forward() then
-		print("Failed to move forward. Returning to base.")
-		while turtle.back() do end
-	end
-
-	local createSource = peripheral.find("create_source")
-	if createSource then
-		createSource.clear()
-		createSource.setCursorPos(1, 1)
-		createSource.write("Vanta Black: " .. count .. "/" .. goal)
+		if turtle.getFuelLevel() == 0 then
+			turtle.refuel()
+		else
+			print("Failed to move forward. Returning to base.")
+			returnHomeAndUpdateDisplay()
+		end
 	end
 end
