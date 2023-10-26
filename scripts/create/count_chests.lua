@@ -22,6 +22,18 @@ local getAverageItemsPerSecond = function()
 	return totalItems / totalTime
 end
 
+local getExpectedTimeRemaining = function(itemsPerSecond)
+	if itemsPerSecond == 0 then
+		return "Unknown"
+	end
+	local timeRemaining = (goal - count) / itemsPerSecond
+	return ("%d:%d:d"):format(
+		math.floor(timeRemaining / 60 / 60),
+		math.floor(timeRemaining / 60) % 60,
+		math.floor(timeRemaining) % 60
+	)
+end
+
 local function returnHomeAndUpdateDisplay()
 	while true do
 		if not turtle.back() then
@@ -41,7 +53,9 @@ local function returnHomeAndUpdateDisplay()
 		createSource.setCursorPos(1, 1)
 		createSource.write("Vanta Black: " .. count .. "/" .. goal .. " (" .. ("%.2f"):format(count / goal * 100) .. "%)")
 		createSource.setCursorPos(1, 2)
-		createSource.write("Items per second: " .. ("%.2f"):format(getAverageItemsPerSecond()))
+		createSource.write(
+			" ETA: " .. getExpectedTimeRemaining(getAverageItemsPerSecond()) ..
+			" Items/s: " .. ("%.2f"):format(getAverageItemsPerSecond()))
 	end
 
 	sleep(5)
