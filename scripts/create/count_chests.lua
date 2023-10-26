@@ -63,8 +63,6 @@ local function returnHomeAndUpdateDisplay()
 end
 
 while true do
-	count = 0
-
 	local chest = peripheral.find("inventory")
 	if chest then
 		for slot, item in pairs(chest.list()) do
@@ -79,6 +77,7 @@ while true do
 			turtle.refuel()
 		else
 			returnHomeAndUpdateDisplay()
+			count = 0
 		end
 	end
 end
