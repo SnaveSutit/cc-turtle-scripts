@@ -27,7 +27,7 @@ local getExpectedTimeRemaining = function(itemsPerSecond)
 		return "Unknown"
 	end
 	local timeRemaining = (goal - count) / itemsPerSecond
-	return ("%d:%d:d"):format(
+	return ("%d:%d:%d"):format(
 		math.floor(timeRemaining / 60 / 60),
 		math.floor(timeRemaining / 60) % 60,
 		math.floor(timeRemaining) % 60
@@ -55,7 +55,7 @@ local function returnHomeAndUpdateDisplay()
 		createSource.setCursorPos(1, 2)
 		local avgItemsPerSecond = getAverageItemsPerSecond()
 		createSource.write(
-			" ETA: " .. getExpectedTimeRemaining(avgItemsPerSecond) ..
+			"ETA: " .. getExpectedTimeRemaining(avgItemsPerSecond) ..
 			" Items/s: " .. ("%.2f"):format(avgItemsPerSecond))
 	end
 
