@@ -1,3 +1,5 @@
+-- wget https://raw.githubusercontent.com/SnaveSutit/cc-turtle-scripts/main/scripts/libs/state_manager.lua
+
 local lib = {}
 local _stateID = nil
 local _state = {}
@@ -47,5 +49,14 @@ lib.set = function(key, value)
 	_state[key] = value
 	lib.save()
 end
+
+setmetatable(lib, {
+	__index = function(_, key)
+		return lib.get(key)
+	end,
+	__newindex = function(_, key, value)
+		lib.set(key, value)
+	end
+})
 
 return lib
