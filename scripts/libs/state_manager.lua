@@ -50,9 +50,9 @@ lib.set = function(key, value)
 	lib.save()
 end
 
-setmetatable(lib, {
+lib = setmetatable(lib, {
 	__index = function(_, key)
-		return lib.get(key)
+		return _state[key]
 	end,
 	__newindex = function(_, key, value)
 		lib.set(key, value)
