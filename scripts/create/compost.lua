@@ -1,4 +1,6 @@
-local basic_storage_block = "techreborn:basic_storage_unit"
+-- wget https://raw.githubusercontent.com/SnaveSutit/cc-turtle-scripts/main/scripts/create/compost.lua startup.lua
+
+local storage_block = "storage_unit"
 local rich_soil = "farmersdelight:rich_soil"
 local organic_compost = "farmersdelight:organic_compost"
 local direction = true
@@ -22,17 +24,17 @@ local function find_zero()
 			turtle.turnLeft()
 		else
 			local success, data = turtle.inspect()
-			if success and data.name == basic_storage_block then
+			if success and data.name:find(storage_block) then
 				turtle.turnLeft()
 				success, data = turtle.inspect()
-				if success and data.name == basic_storage_block then
+				if success and data.name:find(storage_block) then
 					turtle.turnLeft()
 					turtle.turnLeft()
 					return
 				end
 				turtle.turnRight()
 				success, data = turtle.inspect()
-				if success and data.name == basic_storage_block then
+				if success and data.name:find(storage_block) then
 					turtle.turnRight()
 					turtle.turnRight()
 					return
