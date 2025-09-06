@@ -1,23 +1,18 @@
+local reactorController = peripheral.find("fissionReactorLogicAdapter")
+while not reactorController do
+	print("Waiting for fission reactor logic adapter...")
+	os.sleep(1)
+	reactorController = peripheral.find("fissionReactorLogicAdapter")
+end
+
 local gui = require("gui")
 
-local reactorController = peripheral.find("fissionReactorLogicAdapter")
 local powerStorageController = peripheral.find("inductionPort")
 local chatBox = peripheral.find("chat_box")
 
 local screenX, screenY = term.getSize()
 -- true = reactor is active, false = reactor is inactive
 local targetReactorStatus = true
-
-function sendScramMessage(message)
-	chatBox.sendFormattedMessage(textutils.serialiseJSON {
-		text = message,
-		color = "red"
-	})
-	term.clear()
-	term.setCursorPos(1, 1)
-	term.setTextColor(colors.red)
-	term.write(message)
-end
 
 gui.addButton {
 	label = "START REACTOR",
@@ -51,62 +46,84 @@ gui.addButton {
 	end
 }
 
-function monitorThread()
+local function monitorThread()
 	while true do
+		local allGood = true
+
 		local temperature = reactorController.getTemperature()
 		local isActive = reactorController.getStatus()
 
 		if temperature >= 800 then
 			pcall(reactorController.scram)
 			redstone.setOutput("top", true)
-			sendScramMessage("Reactor SCRAM initiated due to critical temperature!")
-			return
+			gui.setStatusMessage("OVERHEATED!")
+			targetReactorStatus = false
+			allGood = false
 		elseif temperature >= 600 then
 			redstone.setOutput("top", true)
+			gui.setStatusMessage("TEMPERATURE HIGH")
+			allGood = false
 		end
 
-		local waste = reactorController.getWasteFilledPercentage()
-		if waste >= 0.9 then
-			pcall(reactorController.scram)
-			sendScramMessage("Reactor waste level critical! Please empty the waste tank.")
-			return
-		end
-
-		local fuel = reactorController.getFuelFilledPercentage()
-		if fuel <= 0.1 then
-			pcall(reactorController.scram)
-			sendScramMessage("Reactor fuel level critical! Please refuel the reactor.")
-			return
-		end
-
-		-- If the target reactor status is ACTIVE, automatically toggle based on energy storage levels
+		-- If the target reactor status is ACTIVE, automatically adjust it's status based on fuel, waste, and energy levels.
 		if targetReactorStatus then
+			local waste = reactorController.getWasteFilledPercentage()
+			local fuel = reactorController.getFuelFilledPercentage()
 			local energy = powerStorageController.getEnergyFilledPercentage()
-			if isActive and energy >= 0.9 then
-				pcall(reactorController.scram)
-			elseif not isActive and energy <= 0.5 then
-				pcall(reactorController.activate)
+
+			if isActive then
+				if waste >= 0.9 then
+					gui.setStatusMessage("WASTE TANK FULL")
+					allGood = false
+				elseif energy >= 0.9 then
+					allGood = false
+					gui.setStatusMessage("ENERGY STORAGE FULL")
+				elseif fuel <= 0.1 then
+					allGood = false
+					gui.setStatusMessage("FUEL LEVEL LOW")
+				end
+			else
+				if waste >= 0.25 then
+					gui.setStatusMessage("WASTE TANK FULL")
+					allGood = false
+				elseif energy >= 0.25 then
+					allGood = false
+					gui.setStatusMessage("ENERGY STORAGE FULL")
+				elseif fuel <= 0.75 then
+					allGood = false
+					gui.setStatusMessage("FUEL LEVEL LOW")
+				end
 			end
+
+
+			if allGood and not isActive then
+				pcall(reactorController.activate)
+				gui.setStatusMessage(nil)
+			end
+		end
+
+		if not allGood then
+			pcall(reactorController.scram)
 		end
 
 		os.sleep(0.1)
 	end
 end
 
-function buttonThread()
+local function buttonThread()
 	while true do
 		gui.processButtons()
 	end
 end
 
-function guiThread()
+local function guiThread()
 	while true do
 		gui.drawReactorStatus(reactorController, powerStorageController)
 		os.sleep(1)
 	end
 end
 
-function main()
+local function main()
 	redstone.setOutput("top", false)
 
 	parallel.waitForAny(

@@ -1,8 +1,8 @@
-function reformatInt(i)
+local function reformatInt(i)
 	return tostring(i):reverse():gsub("%d%d%d", "%1,"):reverse():gsub("^,", "")
 end
 
-function padStart(text, totalLength, paddingChar)
+local function padStart(text, totalLength, paddingChar)
 	paddingChar = paddingChar or " "
 	local textLength = #text
 	if textLength >= totalLength then
@@ -12,11 +12,13 @@ function padStart(text, totalLength, paddingChar)
 	return string.rep(paddingChar, paddingNeeded) .. text
 end
 
-function nextLine()
-	term.setCursorPos(1, ({ term.getCursorPos() })[2] + 1)
-end
+-- local function nextLine()
+-- 	term.setCursorPos(1, ({ term.getCursorPos() })[2] + 1)
+-- end
 
-local gui = {}
+local gui = {
+	statusMessage = nil
+}
 
 function gui.setColor(color)
 	term.setTextColor(color or colors.white)
@@ -24,6 +26,10 @@ end
 
 function gui.setBGColor(color)
 	term.setBackgroundColor(color or colors.black)
+end
+
+function gui.setStatusMessage(message)
+	gui.statusMessage = message
 end
 
 function gui.writeCenteredText(y, text, color, bgColor, paddingChar, paddingColor, paddingBGColor)
@@ -217,7 +223,7 @@ function gui.drawReactorStatus(reactorController, powerStorageController)
 		},
 		{ text = " Status         ", color = colors.yellow },
 		{
-			text = isOnline and "ONLINE" or "OFFLINE",
+			text = (isOnline and "ONLINE" or ("OFFLINE" .. (gui.statusMessage and (" - " .. gui.statusMessage) or ""))),
 			color = isOnline and colors.green or colors.red,
 			newline = true
 		},
@@ -260,7 +266,7 @@ function gui.drawReactorStatus(reactorController, powerStorageController)
 			newline = true
 		},
 		{ text = " Energy Stored ", color = colors.purple },
-		{ text = reformatInt(energy) .. " FE", newline = true },
+		{ text = reformatInt(energy / 2.5) .. " FE", newline = true },
 		{ progress = energyPercentage, lowIsGood = false }
 	)
 
