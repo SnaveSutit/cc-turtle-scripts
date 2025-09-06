@@ -183,7 +183,7 @@ function gui.drawReactorStatus(reactorController, powerStorageController)
 
 	local isOnline = reactorController.getStatus()
 	local heatingRate = reactorController.getHeatingRate()
-	local boilEfficiency = reactorController.getBoilEfficiency()
+	local boilEffeciency = reactorController.getBoilEfficiency()
 	local fuelPercentage = reactorController.getFuelFilledPercentage()
 	local wastePercentage = reactorController.getWasteFilledPercentage()
 	local coolantPercentage = reactorController.getCoolantFilledPercentage()
@@ -215,25 +215,25 @@ function gui.drawReactorStatus(reactorController, powerStorageController)
 			paddingColor = colors.gray,
 			newline = true
 		},
-		{ text = " Status ", color = colors.yellow },
+		{ text = " Status         ", color = colors.yellow },
 		{
 			text = isOnline and "ONLINE" or "OFFLINE",
 			color = isOnline and colors.green or colors.red,
 			newline = true
 		},
-		{ text = " Temperature", color = colors.lightBlue },
+		{ text = " Temperature   ", color = colors.lightBlue },
 		{
 			text = string.format(" %d \176C", temperature - 272.15),
 			color = tempColor,
 			newline = true
 		},
-		{ text = " Heating Rate ", color = colors.red },
+		{ text = " Heating Rate   ", color = colors.red },
 		{
 			text = reformatInt(heatingRate) .. " mb/t",
 			color = colors.orange,
 			newline = true
 		},
-		{ text = " Effeciency ", color = colors.orange },
+		{ text = " Effeciency     ", color = colors.orange },
 		{ progress = boilEffeciency, newline = true },
 		{
 			text = " Fluid Levels ",
