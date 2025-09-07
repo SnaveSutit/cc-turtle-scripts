@@ -1,13 +1,6 @@
-local reactorController = peripheral.find("fissionReactorLogicAdapter")
-while not reactorController do
-	print("Waiting for fission reactor logic adapter...")
-	os.sleep(1)
-	reactorController = peripheral.find("fissionReactorLogicAdapter")
-end
-
+local util = require("util")
 local gui = require("gui")
 
-local powerStorageController = peripheral.find("inductionPort")
 local chatBox = peripheral.find("chat_box")
 
 local screenX, screenY = term.getSize()
@@ -21,6 +14,7 @@ gui.addButton {
 	color = colors.green,
 	onClick = function()
 		targetReactorStatus = true
+		local reactorController = util.awaitPerepheral("fissionReactorLogicAdapter")
 		if not reactorController.getStatus() then
 			reactorController.activate()
 		end
@@ -37,6 +31,7 @@ gui.addButton {
 	color = colors.red,
 	onClick = function()
 		targetReactorStatus = false
+		local reactorController = util.awaitPerepheral("fissionReactorLogicAdapter")
 		if reactorController.getStatus() then
 			reactorController.scram()
 		end
@@ -50,6 +45,8 @@ local function monitorThread()
 	while true do
 		local allGood = true
 
+		local reactorController = util.awaitPerepheral("fissionReactorLogicAdapter")
+		local powerStorageController = util.awaitPerepheral("inductionPort")
 		local temperature = reactorController.getTemperature()
 		local isActive = reactorController.getStatus()
 
@@ -95,7 +92,6 @@ local function monitorThread()
 				end
 			end
 
-
 			if allGood and not isActive then
 				pcall(reactorController.activate)
 				gui.setStatusMessage(nil)
@@ -118,7 +114,7 @@ end
 
 local function guiThread()
 	while true do
-		gui.drawReactorStatus(reactorController, powerStorageController)
+		gui.drawReactorStatus()
 		os.sleep(1)
 	end
 end

@@ -1,3 +1,5 @@
+local util = require("util")
+
 local function reformatInt(i)
 	return tostring(i):reverse():gsub("%d%d%d", "%1,"):reverse():gsub("^,", "")
 end
@@ -184,8 +186,9 @@ function gui.drawButtons()
 	gui.setBGColor()
 end
 
-function gui.drawReactorStatus(reactorController, powerStorageController)
-	local screenX = term.getSize()
+function gui.drawReactorStatus()
+	local reactorController = util.awaitPerepheral("fissionReactorLogicAdapter")
+	local powerStorageController = util.awaitPerepheral("inductionPort")
 
 	local isOnline = reactorController.getStatus()
 	local heatingRate = reactorController.getHeatingRate()

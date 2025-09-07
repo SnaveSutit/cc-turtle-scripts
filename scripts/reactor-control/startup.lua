@@ -1,1 +1,1 @@
-shell.run("monitor left reactor-control.lua")
+shell.run("monitor monitor_0 reactor-control.lua")
