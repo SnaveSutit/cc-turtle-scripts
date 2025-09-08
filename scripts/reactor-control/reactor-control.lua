@@ -14,7 +14,7 @@ gui.addButton {
 	color = colors.green,
 	onClick = function()
 		targetReactorStatus = true
-		local reactorController = util.awaitPerepheral("fissionReactorLogicAdapter")
+		local reactorController = util.awaitMultiblockPeripheral("fissionReactorLogicAdapter")
 		if not reactorController.getStatus() then
 			reactorController.activate()
 		end
@@ -31,7 +31,7 @@ gui.addButton {
 	color = colors.red,
 	onClick = function()
 		targetReactorStatus = false
-		local reactorController = util.awaitPerepheral("fissionReactorLogicAdapter")
+		local reactorController = util.awaitMultiblockPeripheral("fissionReactorLogicAdapter")
 		if reactorController.getStatus() then
 			reactorController.scram()
 		end
@@ -45,8 +45,8 @@ local function monitorThread()
 	while true do
 		local allGood = true
 
-		local reactorController = util.awaitPerepheral("fissionReactorLogicAdapter")
-		local powerStorageController = util.awaitPerepheral("inductionPort")
+		local reactorController = util.awaitMultiblockPeripheral("fissionReactorLogicAdapter")
+		local powerStorageController = util.awaitMultiblockPeripheral("inductionPort")
 		local temperature = reactorController.getTemperature()
 		local isActive = reactorController.getStatus()
 

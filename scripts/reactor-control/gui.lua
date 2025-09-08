@@ -187,8 +187,8 @@ function gui.drawButtons()
 end
 
 function gui.drawReactorStatus()
-	local reactorController = util.awaitPerepheral("fissionReactorLogicAdapter")
-	local powerStorageController = util.awaitPerepheral("inductionPort")
+	local reactorController = util.awaitMultiblockPeripheral("fissionReactorLogicAdapter")
+	local powerStorageController = util.awaitMultiblockPeripheral("inductionPort")
 
 	local isOnline = reactorController.getStatus()
 	local heatingRate = reactorController.getHeatingRate()
