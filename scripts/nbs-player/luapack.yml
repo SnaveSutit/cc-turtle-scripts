@@ -1,0 +1,4 @@
+entry: player.lua
+output: dist/nbs_player.lua
+lib_path: ../../lib
+minify: false

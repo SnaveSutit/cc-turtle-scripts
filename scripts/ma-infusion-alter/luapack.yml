@@ -1,0 +1,4 @@
+entry: startup.lua
+output: dist/startup.lua
+lib_path: ../../lib
+minify: false
